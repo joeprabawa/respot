@@ -2,30 +2,36 @@
   <v-app :dark="dark">
     <Navbar/>
     <v-content>
-      <v-container grid-list-md class="pa-4">
-        <router-view></router-view>
+      <v-container fill-height grid-list-md>
+        <v-slide-y-reverse-transition :hide-on-leave="true">
+          <router-view></router-view>
+        </v-slide-y-reverse-transition>
       </v-container>
     </v-content>
+    <BottomNav/>
   </v-app>
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
 import Navbar from "./components/Navbar";
+import BottomNav from "./components/BottomNav";
 
 export default {
   name: "App",
   components: {
-    Navbar
+    Navbar,
+    BottomNav
   },
 
   data() {
-    return {
-      //
-    };
+    return {};
   },
-  methods: mapActions(["getToken", "getPlaylist"]),
-  computed: mapState(["dark"]),
+  methods: {
+    ...mapActions(["getToken", "getPlaylist", "nextPlaylist"])
+  },
+
+  computed: mapState(["dark", "next"]),
   mounted() {
     this.getToken();
     this.getPlaylist();

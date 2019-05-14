@@ -9,8 +9,9 @@ export default new Vuex.Store({
     playlists: [],
     tracks: [],
     dark: true,
-    loading: true
-
+    loading: false,
+    trackLoading: false,
+    next: false
   },
   mutations: {
     darkMode(state) {
@@ -26,7 +27,19 @@ export default new Vuex.Store({
       return (state.tracks = payload);
     },
     setLoading(state, payload) {
-      return state.loading = payload
+      return (state.loading = payload);
+    },
+    setNextLoading(state, payload) {
+      return (state.nextLoading = payload);
+    },
+    setNext(state, payload) {
+      return state.playlists.push(payload);
+    },
+    next(state, payload) {
+      return (state.next = payload);
+    },
+    trackLoading(state, payload) {
+      return (state.trackLoading = payload);
     }
   },
   actions: {
@@ -34,7 +47,7 @@ export default new Vuex.Store({
       const hash = window.location.hash
         .substring(1)
         .split("&")
-        .reduce(function (initial, item) {
+        .reduce(function(initial, item) {
           if (item) {
             var parts = item.split("=");
             initial[parts[0]] = decodeURIComponent(parts[1]);
@@ -50,7 +63,7 @@ export default new Vuex.Store({
 
       // Replace with your app's client ID, redirect URI and desired scopes
       const clientId = "753819e3242f444aabc7cadacd11de5b";
-      const redirectUri = "http://localhost:8080";
+      const redirectUri = "http://192.168.2.254:8080";
       const scopes = ["user-top-read"];
 
       // If there is no token, redirect to Spotify authorization
@@ -62,8 +75,10 @@ export default new Vuex.Store({
 
       return commit("getToken", _token);
     },
+
     async getPlaylist({ commit, state }) {
-      const url = "https://api.spotify.com/v1/me/playlists?limit=50";
+      commit("setLoading", true);
+      const url = "https://api.spotify.com/v1/me/playlists?limit=10";
       const options = {
         headers: {
           Authorization: `Bearer ${state.token}`
@@ -71,15 +86,19 @@ export default new Vuex.Store({
       };
       const fetchPlaylist = await fetch(url, options);
       const response = await fetchPlaylist.json();
-      const { items } = await response;
+      const { items, next } = await response;
       const edit = items.map(item => {
         return { ...item, show: false };
       });
 
-      return commit("setPlaylist", edit);
+      await commit("next", next);
+      await commit("setPlaylist", edit);
+      return commit("setLoading", false);
     },
+
     async getTrack({ commit, state }, url) {
-      commit('setLoading', true)
+      commit("setTracks", []);
+      commit("trackLoading", true);
       const options = {
         headers: {
           Authorization: `Bearer ${state.token}`
@@ -88,17 +107,96 @@ export default new Vuex.Store({
       const fetchTrack = await fetch(url, options);
       const response = await fetchTrack.json();
       const { items } = response;
-      commit('setTracks', items)
-      commit('setLoading', false)
 
+      const editedTracks = items.map(async item => {
+        const { id } = item.track;
+        const url = `https://api.spotify.com/v1/audio-features/${id}`;
+        const fetchAudio = await fetch(url, options);
+        const { tempo, energy } = await fetchAudio.json();
+
+        const final = `${Math.round(tempo)} BPM`;
+
+        return {
+          ...item,
+          tempo: final,
+          mark: energy,
+          alt:
+            "https://developer.spotify.com/assets/branding-guidelines/icon1@2x.png"
+        };
+      });
+      await Promise.all(editedTracks).then(result => {
+        commit("setTracks", result);
+      });
+      commit("trackLoading", false);
+    },
+    async nextPlaylist({ commit, state }) {
+      const options = {
+        headers: {
+          Authorization: `Bearer ${state.token}`
+        }
+      };
+      const fetchTrack = await fetch(state.next, options);
+      const response = await fetchTrack.json();
+      const { items, next } = response;
+      commit("next", next);
+      items.forEach(item => commit("setNext", item));
     }
   },
   getters: {
     tracks(state) {
-      return state.tracks;
+      const edited = state.tracks.map(track => {
+        const { release_date } = track.track.album;
+        const { mark } = track;
+
+        // Set Category
+        const getYear = parseInt(release_date.substring(0, 4));
+        const today = new Date();
+        const year = today.getFullYear();
+        const substract = year - getYear;
+
+        let category = "";
+        if (getYear === year) {
+          category = "Top 40";
+        } else if (substract === 1) {
+          category = "Current";
+        } else if (substract >= 2 && substract < 10) {
+          category = "Recurrent";
+        } else {
+          category = "Oldies";
+        }
+
+        // Set Remark
+        const floor = Math.floor(mark * 10);
+
+        let remark = "";
+        if (floor >= 0 && floor <= 3) remark = "S";
+        else if (floor >= 4 && floor <= 7) remark = "M";
+        else if (floor >= 8 && floor <= 9) remark = " M+";
+        else remark = "B";
+
+        return { ...track, category, remark };
+      });
+
+      return edited;
     },
     loader(state) {
       return state.loading;
+    },
+    trackLoading(state) {
+      return state.trackLoading;
+    },
+    playlists(state) {
+      return state.playlists.reduce((acc, current) => {
+        const x = acc.find(item => {
+          return item.id === current.id;
+        });
+
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []);
     }
   }
 });

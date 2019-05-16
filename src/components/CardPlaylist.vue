@@ -1,14 +1,14 @@
 <template>
-  <v-card :color="dark ? 'dark': 'primary'" flat>
-    <v-container fill-height v-if="$vuetify.breakpoint.xsOnly">
-      <v-layout row align-center justify-center>
+  <v-card :color="dark ? 'dark': 'primary'" flat :class="$vuetify.breakpoint.xsOnly ? 'mb-2' : ''">
+    <v-container v-if="$vuetify.breakpoint.xsOnly">
+      <v-layout row wrap align-start>
         <v-flex xs2>
           <v-avatar size="90" color="secondary">
-            <img :src="item.images[0].url">
+            <img loading="lazy" :src="item.images[0].url">
           </v-avatar>
         </v-flex>
         <v-flex xs10>
-          <v-card-title :class="dark ? 'primary--text custom ': 'secondary--text custom ' ">
+          <v-card-title :class="dark ? 'primary--text custom  ': 'secondary--text custom  ' ">
             <div>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -44,8 +44,10 @@
       <v-img :src="item.images[0].url" height="200px"></v-img>
     </div>
 
-    <v-card-actions color="white">
-      <v-btn flat color="teal lighten-1">select</v-btn>
+    <v-card-actions
+      :class="dark ? 'dark' : 'white' && $vuetify.breakpoint.xsOnly ? 'accent': 'white'"
+    >
+      <v-btn flat>select</v-btn>
       <v-spacer></v-spacer>
       <Dialog :item="item"/>
     </v-card-actions>
@@ -87,7 +89,7 @@ export default {
 
 .v-sheet {
   border-radius: 6px;
-  /* border: 0.06rem solid #cccccc; */
+  border: 0.06rem solid #cccccc;
 }
 
 .custom {

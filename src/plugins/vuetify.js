@@ -7,8 +7,8 @@ Vue.use(Vuetify, {
   iconfont: "mdi",
   theme: {
     primary: "#F1EEE5",
-    secondary: "#404c27",
-    accent: "#787e91",
-    error: "#b71c1c"
+    secondary: "#4c5828",
+    accent: "#b0c499",
+    error: "#a84122"
   }
 });

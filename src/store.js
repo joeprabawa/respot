@@ -8,6 +8,7 @@ export default new Vuex.Store({
     token: "",
     playlists: [],
     tracks: [],
+    studio: [],
     dark: true,
     loading: false,
     trackLoading: false,
@@ -78,7 +79,7 @@ export default new Vuex.Store({
 
     async getPlaylist({ commit, state }) {
       commit("setLoading", true);
-      const url = "https://api.spotify.com/v1/me/playlists?limit=10";
+      const url = "https://api.spotify.com/v1/me/playlists?limit=8";
       const options = {
         headers: {
           Authorization: `Bearer ${state.token}`
@@ -125,6 +126,7 @@ export default new Vuex.Store({
         };
       });
       await Promise.all(editedTracks).then(result => {
+        console.log(result);
         commit("setTracks", result);
       });
       commit("trackLoading", false);
@@ -171,9 +173,8 @@ export default new Vuex.Store({
         let remark = "";
         if (floor >= 0 && floor <= 3) remark = "S";
         else if (floor >= 4 && floor <= 7) remark = "M";
-        else if (floor >= 8 && floor <= 9) remark = " M+";
+        else if (floor === 8) remark = " M+";
         else remark = "B";
-
         return { ...track, category, remark };
       });
 

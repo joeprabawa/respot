@@ -1,10 +1,14 @@
 <template>
-  <v-card :color="dark ? 'dark': 'primary'" flat :class="$vuetify.breakpoint.xsOnly ? 'mb-2' : ''">
-    <v-container v-if="$vuetify.breakpoint.xsOnly">
-      <v-layout row wrap align-start>
+  <v-card
+    flat
+    :color="dark ? 'dark': 'primary'"
+    :class="$vuetify.breakpoint.xsOnly ? 'mb-2' : 'ma-2'"
+  >
+    <v-container fill-height v-if="$vuetify.breakpoint.xsOnly">
+      <v-layout align-start justify-center row>
         <v-flex xs2>
-          <v-avatar size="90" color="secondary">
-            <img loading="lazy" :src="item.images[0].url">
+          <v-avatar :size="95">
+            <v-img max-height="125" :src="item.images[0].url"></v-img>
           </v-avatar>
         </v-flex>
         <v-flex xs10>
@@ -12,7 +16,7 @@
             <div>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                  <div v-on="on" class="title font-weight-bold text-capitalize" v-html="item.name"></div>
+                  <div v-on="on" class="title text-capitalize" v-html="item.name"></div>
                   <div class="mt-1 text-uppercase small" v-html=" `${item.owner.display_name} ` "></div>
                 </template>
                 <span>{{item.name}}</span>
@@ -45,9 +49,9 @@
     </div>
 
     <v-card-actions
-      :class="dark ? 'dark' : 'white' && $vuetify.breakpoint.xsOnly ? 'accent': 'white'"
+      :class="dark ? 'grey darken-2' : 'white' && $vuetify.breakpoint.xsOnly ? 'accent': 'white'"
     >
-      <v-btn flat>select</v-btn>
+      <v-btn @click="select(item.tracks.href)" flat>select</v-btn>
       <v-spacer></v-spacer>
       <Dialog :item="item"/>
     </v-card-actions>
@@ -68,7 +72,7 @@ export default {
     return {};
   },
   computed: {
-    ...mapState(["dark"])
+    ...mapState(["dark", "trackLoading"])
   },
   methods: {
     judulTruncate(value) {
@@ -79,6 +83,10 @@ export default {
       } else {
         return value;
       }
+    },
+    select(args) {
+      console.log(args);
+      return args;
     }
   }
 };
@@ -89,11 +97,11 @@ export default {
 
 .v-sheet {
   border-radius: 6px;
-  border: 0.06rem solid #cccccc;
+  /* border: 0.06rem solid #cccccc; */
 }
 
 .custom {
-  margin: -10px 0 0 4rem;
+  margin: -12px 0 0 4rem;
   font-family: "Raleway";
 }
 

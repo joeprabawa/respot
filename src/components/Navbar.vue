@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar class="py-1" flat :color="dark ? 'grey darken-4' : 'white'">
+  <v-toolbar class="py-1" flat :color="dark ? 'grey darken-4' : 'accent'">
     <v-icon large>mdi-spotify</v-icon>
     <v-toolbar-title v-show="!$vuetify.breakpoint.xsOnly " class="text-uppercase">
       <span class="teal--text text--lighten-1">vue</span> spot

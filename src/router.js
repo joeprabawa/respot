@@ -1,6 +1,5 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
 import BookMarks from "./views/Bookmarks.vue";
 // import Export from "./views/Export.vue";
 
@@ -8,12 +7,12 @@ Vue.use(Router);
 
 export default new Router({
   mode: "history",
-
   routes: [
     {
       path: "/",
       name: "home",
-      component: Home
+      component: () =>
+        import(/* webpackChunkName: "about" */ "./views/Home.vue")
     },
     {
       path: "/bookmarks",

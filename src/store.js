@@ -8,6 +8,7 @@ export default new Vuex.Store({
     token: "",
     playlists: [],
     tracks: [],
+    indo: null,
     studio: [],
     dark: true,
     loading: false,
@@ -41,6 +42,9 @@ export default new Vuex.Store({
     },
     trackLoading(state, payload) {
       return (state.trackLoading = payload);
+    },
+    changeIndo(state, payload) {
+      return (state.indo = payload);
     }
   },
   actions: {
@@ -64,7 +68,7 @@ export default new Vuex.Store({
 
       // Replace with your app's client ID, redirect URI and desired scopes
       const clientId = "753819e3242f444aabc7cadacd11de5b";
-      const redirectUri = "http://192.168.2.254:8080";
+      const redirectUri = "http://localhost:8080";
       const scopes = ["user-top-read"];
 
       // If there is no token, redirect to Spotify authorization
@@ -97,7 +101,7 @@ export default new Vuex.Store({
       return commit("setLoading", false);
     },
 
-    async getTrack({ commit, state }, url) {
+    async getTrack({ commit, state }, payload) {
       commit("setTracks", []);
       commit("trackLoading", true);
       const options = {
@@ -105,6 +109,7 @@ export default new Vuex.Store({
           Authorization: `Bearer ${state.token}`
         }
       };
+      const url = `https://api.spotify.com/v1/playlists/${payload}/tracks`;
       const fetchTrack = await fetch(url, options);
       const response = await fetchTrack.json();
       const { items } = response;
@@ -116,17 +121,18 @@ export default new Vuex.Store({
         const { tempo, energy } = await fetchAudio.json();
 
         const final = `${Math.round(tempo)} BPM`;
+        const markIndo = state.indo === payload ? "Indonesia" : "";
 
         return {
           ...item,
           tempo: final,
           mark: energy,
+          category: markIndo,
           alt:
             "https://developer.spotify.com/assets/branding-guidelines/icon1@2x.png"
         };
       });
       await Promise.all(editedTracks).then(result => {
-        console.log(result);
         commit("setTracks", result);
       });
       commit("trackLoading", false);
@@ -148,7 +154,7 @@ export default new Vuex.Store({
     tracks(state) {
       const edited = state.tracks.map(track => {
         const { release_date } = track.track.album;
-        const { mark } = track;
+        let { mark, category } = track;
 
         // Set Category
         const getYear = parseInt(release_date.substring(0, 4));
@@ -156,8 +162,9 @@ export default new Vuex.Store({
         const year = today.getFullYear();
         const substract = year - getYear;
 
-        let category = "";
-        if (getYear === year) {
+        if (category === "Indonesia") {
+          category = "Indonesia";
+        } else if (getYear === year) {
           category = "Top 40";
         } else if (substract === 1) {
           category = "Current";
@@ -167,7 +174,7 @@ export default new Vuex.Store({
           category = "Oldies";
         }
 
-        // Set Remark
+        // // Set Remark
         const floor = Math.floor(mark * 10);
 
         let remark = "";
@@ -186,6 +193,7 @@ export default new Vuex.Store({
     trackLoading(state) {
       return state.trackLoading;
     },
+
     playlists(state) {
       return state.playlists.reduce((acc, current) => {
         const x = acc.find(item => {

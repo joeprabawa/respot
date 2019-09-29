@@ -53,7 +53,8 @@
     >
       <v-btn @click="select(item.tracks.href)" flat>select</v-btn>
       <v-spacer></v-spacer>
-      <Dialog :item="item"/>
+      <v-btn @click="indo(item.id)" flat>mark as indo</v-btn>
+      <Dialog :item="item" />
     </v-card-actions>
   </v-card>
 </template>
@@ -74,6 +75,7 @@ export default {
   computed: {
     ...mapState(["dark", "trackLoading"])
   },
+
   methods: {
     judulTruncate(value) {
       let words = value.split(" ");
@@ -85,8 +87,10 @@ export default {
       }
     },
     select(args) {
-      console.log(args);
       return args;
+    },
+    indo(args) {
+      return this.$store.commit("changeIndo", args);
     }
   }
 };

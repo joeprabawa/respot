@@ -7,7 +7,7 @@
     origin="center center"
   >
     <template v-slot:activator="{ on }">
-      <v-btn icon @click="detail(item.tracks.href)">
+      <v-btn icon @click="detail(item.id)">
         <span :class="item.show ? 'custom-loader' : ''">
           <v-icon light>{{ item.show ? 'cached' : 'more_vert' }}</v-icon>
         </span>

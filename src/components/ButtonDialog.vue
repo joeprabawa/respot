@@ -25,33 +25,38 @@
       <v-layout row wrap align-center justify-center>
         <v-flex md12>
           <v-data-table
+            v-model="selected"
             class="elevation-0"
             :rows-per-page-items="option"
             :headers="headers"
             :items="tracks"
+            item-key="track.id"
           >
             <template v-slot:items="props">
-              <tr>
+              <tr :active="props.selected" @click="props.selected = !props.selected">
+                <td>
+                  <v-checkbox :input-value="props.selected" primary hide-details></v-checkbox>
+                </td>
                 <td>{{props.index+1}}</td>
                 <td>
                   <v-avatar :size="36" color="grey lighten-4">
-                    <img :src="props.item.track.album.images[0].url" alt="avatar">
+                    <img :src="props.item.track.album.images[0].url" alt="avatar" />
                   </v-avatar>
                 </td>
                 <td>
-                  <v-tooltip v-if="props.item.track.name.length >= 10" dark bottom>
+                  <v-tooltip v-if="props.item.track.name.length >= 50" dark bottom>
                     <template v-slot:activator="{ on }">
-                      <p v-on="on">{{ truncate(props.item.track.name , 10) }}</p>
+                      <p v-on="on">{{ truncate(props.item.track.name , 50) }}</p>
                     </template>
                     <span>{{props.item.track.name}}</span>
                   </v-tooltip>
-                  <p v-else>{{ truncate(props.item.track.name , 10) }}</p>
+                  <p v-else>{{ truncate(props.item.track.name , 50) }}</p>
                 </td>
 
                 <td>
                   <v-tooltip dark bottom>
                     <template v-slot:activator="{ on }">
-                      <p v-on="on">{{ truncate(props.item.track.artists[0].name, 3) }}</p>
+                      <p v-on="on">{{ truncate(props.item.track.artists[0].name, 50) }}</p>
                     </template>
                     <span>{{props.item.track.artists[0].name}}</span>
                   </v-tooltip>
@@ -68,6 +73,8 @@
     </v-card>
   </v-dialog>
 </template>
+        
+       
 
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -76,6 +83,8 @@ export default {
   name: "ButtonDialog",
   props: ["item"],
   data: () => ({
+    singleSelect: false,
+    selected: [],
     dialog: false,
     option: [
       10,
@@ -84,7 +93,8 @@ export default {
     ],
 
     headers: [
-      { text: "#", value: "index", sortable: false },
+      { text: "Select", value: "index", sortable: false, width: 10 },
+      { text: "#", value: "index", sortable: false, width: 10 },
       { text: "Art", value: "art" },
       {
         text: "Title",
@@ -99,6 +109,12 @@ export default {
     ]
   }),
   computed: mapGetters(["tracks", "trackLoading"]),
+  watch: {
+    selected: function(newVal) {
+      console.log(newVal);
+      return newVal
+    }
+  },
   methods: {
     ...mapActions(["getTrack"]),
     ...mapMutations(["setLoading"]),

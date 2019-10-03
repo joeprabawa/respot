@@ -56,6 +56,10 @@
       <v-btn @click="indo(item.id)" flat>mark as indo</v-btn>
       <Dialog :item="item" />
     </v-card-actions>
+    <v-snackbar color="success" v-model="snackbar">
+      {{ msg }}
+      <v-btn dark text @click="snackbar = false">Close</v-btn>
+    </v-snackbar>
   </v-card>
 </template>
 
@@ -70,10 +74,13 @@ export default {
     Dialog
   },
   data() {
-    return {};
+    return {
+      snackbar: false,
+      msg: ""
+    };
   },
   computed: {
-    ...mapState(["dark", "trackLoading"])
+    ...mapState(["dark", "trackLoading", "playlists"])
   },
 
   methods: {
@@ -90,7 +97,10 @@ export default {
       return args;
     },
     indo(args) {
-      return this.$store.commit("changeIndo", args);
+      this.$store.commit("changeIndo", args);
+      this.snackbar = true;
+      const plyName = this.playlists.find(({ id }) => id === args);
+      this.msg = `Playlists ${plyName.name} berhasil di Mark Indonesia`;
     }
   }
 };

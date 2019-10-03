@@ -15,6 +15,7 @@ export default new Vuex.Store({
     trackLoading: false,
     next: false
   },
+
   mutations: {
     darkMode(state) {
       state.dark = !state.dark;
@@ -137,6 +138,7 @@ export default new Vuex.Store({
       });
       commit("trackLoading", false);
     },
+
     async nextPlaylist({ commit, state }) {
       const options = {
         headers: {
@@ -163,7 +165,7 @@ export default new Vuex.Store({
         const substract = year - getYear;
 
         if (category === "Indonesia") {
-          category = "Indonesia";
+          category = category;
         } else if (getYear === year) {
           category = "Top 40";
         } else if (substract === 1) {
@@ -187,9 +189,11 @@ export default new Vuex.Store({
 
       return edited;
     },
+
     loader(state) {
       return state.loading;
     },
+
     trackLoading(state) {
       return state.trackLoading;
     },

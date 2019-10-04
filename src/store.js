@@ -46,6 +46,9 @@ export default new Vuex.Store({
     },
     changeIndo(state, payload) {
       return (state.indo = payload);
+    },
+    storeToStudio(state, payload) {
+      return state.studio.push(payload);
     }
   },
   actions: {

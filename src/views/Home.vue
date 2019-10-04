@@ -4,7 +4,7 @@
       <v-layout row wrap align-center justify-center>
         <v-progress-circular v-if="loading" :size="50" indeterminate></v-progress-circular>
         <v-flex xs12 sm4 md3 v-for="(item, index) in playlists" :key="item.id">
-          <Card :index="index" :item="item"/>
+          <Card :index="index" :item="item" />
         </v-flex>
       </v-layout>
       <v-snackbar

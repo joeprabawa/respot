@@ -51,9 +51,8 @@
     <v-card-actions
       :class="dark ? 'grey darken-2' : 'white' && $vuetify.breakpoint.xsOnly ? 'accent': 'white'"
     >
-      <v-btn @click="select(item.tracks.href)" flat>select</v-btn>
-      <v-spacer></v-spacer>
       <v-btn @click="indo(item.id)" flat>mark as indo</v-btn>
+      <v-spacer></v-spacer>
       <Dialog :item="item" />
     </v-card-actions>
     <v-snackbar color="success" v-model="snackbar">

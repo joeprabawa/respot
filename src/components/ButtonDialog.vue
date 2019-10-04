@@ -20,54 +20,21 @@
         </v-btn>
         <v-toolbar-title>Playlist Detail</v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-toolbar-items>
+          <v-btn flat text @click="toStudio">Save</v-btn>
+        </v-toolbar-items>
       </v-toolbar>
 
       <v-layout row wrap align-center justify-center>
         <v-flex md12>
-          <v-data-table
-            v-model="selected"
-            class="elevation-0"
-            :rows-per-page-items="option"
+          <DataTable
+            :selectall="toggleAll"
+            :truncate="truncate"
+            :model="selected"
+            :rows="option"
             :headers="headers"
             :items="tracks"
-            item-key="track.id"
-          >
-            <template v-slot:items="props">
-              <tr :active="props.selected" @click="props.selected = !props.selected">
-                <td>
-                  <v-checkbox :input-value="props.selected" primary hide-details></v-checkbox>
-                </td>
-                <td>{{props.index+1}}</td>
-                <td>
-                  <v-avatar :size="36" color="grey lighten-4">
-                    <img :src="props.item.track.album.images[0].url" alt="avatar" />
-                  </v-avatar>
-                </td>
-                <td>
-                  <v-tooltip v-if="props.item.track.name.length >= 50" dark bottom>
-                    <template v-slot:activator="{ on }">
-                      <p v-on="on">{{ truncate(props.item.track.name , 50) }}</p>
-                    </template>
-                    <span>{{props.item.track.name}}</span>
-                  </v-tooltip>
-                  <p v-else>{{ truncate(props.item.track.name , 50) }}</p>
-                </td>
-
-                <td>
-                  <v-tooltip dark bottom>
-                    <template v-slot:activator="{ on }">
-                      <p v-on="on">{{ truncate(props.item.track.artists[0].name, 50) }}</p>
-                    </template>
-                    <span>{{props.item.track.artists[0].name}}</span>
-                  </v-tooltip>
-                </td>
-                <td>{{ props.item.track.album.release_date.substring(0,4) }}</td>
-                <td>{{ props.item.category }}</td>
-                <td>{{ props.item.tempo }}</td>
-                <td>{{ props.item.remark}}</td>
-              </tr>
-            </template>
-          </v-data-table>
+          />
         </v-flex>
       </v-layout>
     </v-card>
@@ -78,9 +45,12 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
-
+import DataTable from "./DataTable";
 export default {
   name: "ButtonDialog",
+  components: {
+    DataTable
+  },
   props: ["item"],
   data: () => ({
     singleSelect: false,
@@ -93,7 +63,6 @@ export default {
     ],
 
     headers: [
-      { text: "Select", value: "index", sortable: false, width: 10 },
       { text: "#", value: "index", sortable: false, width: 10 },
       { text: "Art", value: "art" },
       {
@@ -109,12 +78,7 @@ export default {
     ]
   }),
   computed: mapGetters(["tracks", "trackLoading"]),
-  watch: {
-    selected: function(newVal) {
-      console.log(newVal);
-      return newVal
-    }
-  },
+
   methods: {
     ...mapActions(["getTrack"]),
     ...mapMutations(["setLoading"]),
@@ -131,6 +95,15 @@ export default {
 
     truncate(str, length) {
       return str.length >= length ? `${str.substring(0, length)} ....` : str;
+    },
+    toggleAll() {
+      if (this.selected.length) this.selected = [];
+      else this.selected = this.tracks.slice();
+    },
+    toStudio() {
+      return this.selected.forEach(val => {
+        return this.$store.commit("storeToStudio", val);
+      });
     }
   }
 };

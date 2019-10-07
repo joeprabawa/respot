@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-data-table
-      v-model="model"
+      v-model="selected"
       class="elevation-0"
       :rows-per-page-items="rows"
       :headers="headers"
@@ -64,7 +64,17 @@
 <script>
 export default {
   name: "Datatable",
-  props: ["model", "rows", "headers", "items", "truncate", "selectall"]
+  props: ["model", "rows", "headers", "items", "truncate", "selectall"],
+  data() {
+    return {
+      selected: this.model
+    };
+  },
+  watch: {
+    selected: newVal => {
+      return newVal;
+    }
+  }
 };
 </script>
 

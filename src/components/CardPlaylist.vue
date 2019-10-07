@@ -55,9 +55,11 @@
       <v-spacer></v-spacer>
       <Dialog :item="item" />
     </v-card-actions>
-    <v-snackbar color="success" v-model="snackbar">
-      {{ msg }}
-      <v-btn dark text @click="snackbar = false">Close</v-btn>
+    <v-snackbar bottom left multi-line color="success" v-model="snackbar">
+      <span>
+        <h3>{{ msg }}</h3>berhasil di mark Indonesia
+      </span>
+      <v-btn flat text @click="snackbar = false">Close</v-btn>
     </v-snackbar>
   </v-card>
 </template>
@@ -98,8 +100,8 @@ export default {
     indo(args) {
       this.$store.commit("changeIndo", args);
       this.snackbar = true;
-      const plyName = this.playlists.find(({ id }) => id === args);
-      this.msg = `Playlists ${plyName.name} berhasil di Mark Indonesia`;
+      const { name } = this.playlists.find(({ id }) => id === args);
+      return (this.msg = name);
     }
   }
 };

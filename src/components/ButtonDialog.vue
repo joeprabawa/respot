@@ -21,7 +21,22 @@
         <v-toolbar-title>Playlist Detail</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn flat text @click="toStudio">Save</v-btn>
+          <v-menu offset-y>
+            <template v-slot:activator="{ on }">
+              <v-btn flat v-on="on">
+                <v-icon left>arrow_drop_down</v-icon>options
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-tile
+                v-for="(item, index) in dropdowns"
+                :key="index"
+                @click="selectOption(item.value)"
+              >
+                <v-list-tile-title>{{ item.text }}</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
         </v-toolbar-items>
       </v-toolbar>
 
@@ -33,6 +48,8 @@
             :rows-per-page-items="option"
             :headers="headers"
             :items="tracks"
+            select-all
+            :pagination.sync="pagination"
             item-key="track.id"
           >
             <template v-slot:headers="props">
@@ -46,7 +63,15 @@
                     @click.stop="toggleAll"
                   ></v-checkbox>
                 </th>
-                <th v-for="header in props.headers" :key="header.text">{{ header.text }}</th>
+                <th
+                  v-for="header in props.headers"
+                  :key="header.text"
+                  :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
+                  @click="changeSort(header.value)"
+                >
+                  <v-icon small>arrow_upward</v-icon>
+                  {{ header.text }}
+                </th>
               </tr>
             </template>
             <template v-slot:items="props">
@@ -97,7 +122,8 @@
       v-model="snackbarProps.model"
     >
       <span class="text-capitalize">
-        <h3>{{ snackbarProps.msg }}</h3>sudah ada pada database
+        <h3>{{ snackbarProps.msg }}</h3>
+        {{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument ==='top' ? 'Success changed to Top40' :'Failed to change' }}
       </span>
       <v-btn class="grey--text text--darken-4" flat text @click="snackbarProps.model = false">Close</v-btn>
     </v-snackbar>
@@ -114,7 +140,37 @@ export default {
 
   props: ["item"],
   data: () => ({
+    argument: "",
     singleSelect: false,
+    pagination: {
+      sortBy: "name"
+    },
+    dropdowns: [
+      {
+        value: "save",
+        text: "Save"
+      },
+      {
+        value: "top",
+        text: "Top40"
+      },
+      {
+        value: "cur",
+        text: "Current"
+      },
+      {
+        value: "rec",
+        text: "Recurrent"
+      },
+      {
+        value: "old",
+        text: "Oldies"
+      },
+      {
+        value: "id",
+        text: "Indonesia"
+      }
+    ],
     selected: [],
     dialog: false,
     option: [
@@ -144,15 +200,20 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters(["tracks", "trackLoading"]),
-    getSelected() {
-      return this.selected;
-    }
+    ...mapGetters(["tracks", "trackLoading"])
   },
 
   methods: {
     ...mapActions(["getTrack"]),
     ...mapMutations(["setLoading"]),
+    changeSort(column) {
+      if (this.pagination.sortBy === column) {
+        this.pagination.descending = !this.pagination.descending;
+      } else {
+        this.pagination.sortBy = column;
+        this.pagination.descending = false;
+      }
+    },
     detail(payload) {
       this.item.show = !this.item.show;
       this.getTrack(payload).then(() => {
@@ -171,21 +232,49 @@ export default {
       if (this.selected.length) this.selected = [];
       else this.selected = this.tracks.slice();
     },
-    toStudio() {
-      return this.selected.forEach(val => {
-        const state = this.$store.state.studio;
-        const values = state.find(value => value.track.id === val.track.id);
+    selectOption(args) {
+      if (args === "save") {
+        this.argument = "save";
+        return this.selected.forEach(val => {
+          const state = this.$store.state.studio;
 
-        // Validation tracks exist
-        if (state.indexOf(values) > -1) {
-          const { id, name } = values.track;
-          this.snackbarProps.model = true;
-          this.snackbarProps.msg = `${id} - ${name}`;
-          this.snackbarProps.type = "yellow";
-        } else {
-          this.$store.commit("storeToStudio", val);
-        }
-      });
+          const { name } = val.track;
+          const { name: artistName } = val.track.artists[0];
+          // Validation tracks exist
+          if (state.includes(val)) {
+            this.snackbarProps.model = true;
+            this.snackbarProps.msg = `${artistName} - ${name}`;
+            this.snackbarProps.type = "yellow";
+          } else {
+            this.$store.commit("storeToStudio", val);
+            this.snackbarProps.model = true;
+            this.snackbarProps.msg =
+              this.selected.length > 1
+                ? `${this.selected.length} songs`
+                : `${artistName} - ${name}`;
+
+            this.snackbarProps.type = "success";
+          }
+        });
+      }
+
+      if (args === "top") {
+        // if true, find the tracks array
+        this.tracks.filter(v => {
+          this.selected.forEach(val => {
+            if (v.track.id === val.track.id) {
+              v.category = "Top 40";
+              this.argument = "top";
+              this.snackbarProps.model = true;
+              this.snackbarProps.msg = `${this.selected.length} ${
+                this.selected.length > 1 ? "songs" : "song"
+              }`;
+              this.snackbarProps.type = "success";
+            }
+          });
+          return v;
+        });
+      }
     }
   }
 };

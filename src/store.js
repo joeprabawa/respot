@@ -122,13 +122,15 @@ export default new Vuex.Store({
         const { id } = item.track;
         const url = `https://api.spotify.com/v1/audio-features/${id}`;
         const fetchAudio = await fetch(url, options);
-        const { tempo, energy } = await fetchAudio.json();
+        const { tempo, energy, mode, key } = await fetchAudio.json();
 
         const final = `${Math.round(tempo)} BPM`;
         const markIndo = state.indo === payload ? "Indonesia" : "";
 
         return {
           ...item,
+          mode,
+          key,
           tempo: final,
           mark: energy,
           category: markIndo,

@@ -21,22 +21,33 @@
         <v-toolbar-title>Playlist Detail</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-menu offset-y>
+          <v-menu left offset-y v-if="$vuetify.breakpoint.xsOnly">
             <template v-slot:activator="{ on }">
-              <v-btn flat v-on="on">
-                <v-icon left>arrow_drop_down</v-icon>options
+              <v-btn icon flat v-on="on">
+                <v-icon>more_vert</v-icon>
               </v-btn>
             </template>
             <v-list>
               <v-list-tile
                 v-for="(item, index) in dropdowns"
                 :key="index"
-                @click="selectOption(item.value)"
+                @click="selectOption(item.value, item.text)"
               >
                 <v-list-tile-title>{{ item.text }}</v-list-tile-title>
               </v-list-tile>
             </v-list>
           </v-menu>
+
+          <v-btn
+            @click="selectOption(item.value, item.text)"
+            v-else
+            v-for="item in dropdowns"
+            :key="item.value"
+            flat
+          >
+            <v-icon class="mr-1">{{item.value === 'save'? 'save':'bookmark_border'}}</v-icon>
+            {{item.value}}
+          </v-btn>
         </v-toolbar-items>
       </v-toolbar>
 
@@ -123,7 +134,7 @@
     >
       <span class="text-capitalize">
         <h3>{{ snackbarProps.msg }}</h3>
-        {{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument ==='top' ? 'Success changed to Top40' :'Failed to change' }}
+        {{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument === `${argument}` ? `Success changed to ${snackbarProps.text}` :'Failed to change' }}
       </span>
       <v-btn class="grey--text text--darken-4" flat text @click="snackbarProps.model = false">Close</v-btn>
     </v-snackbar>
@@ -152,7 +163,7 @@ export default {
       },
       {
         value: "top",
-        text: "Top40"
+        text: "Top 40"
       },
       {
         value: "cur",
@@ -191,12 +202,14 @@ export default {
       { text: "Year", value: "track.album.release_date" },
       { text: "Category", value: "category" },
       { text: "BPM", value: "tempo" },
+      { text: "Key/Mode", value: "mode" },
       { text: "Mark", value: "mark" }
     ],
     snackbarProps: {
       model: false,
       msg: null,
-      type: ""
+      type: "",
+      text: ""
     }
   }),
   computed: {
@@ -232,16 +245,18 @@ export default {
       if (this.selected.length) this.selected = [];
       else this.selected = this.tracks.slice();
     },
-    selectOption(args) {
+    selectOption(args, tags) {
+      console.log(args);
       if (args === "save") {
         this.argument = "save";
-        return this.selected.forEach(val => {
-          const state = this.$store.state.studio;
+        const state = this.$store.state.studio;
 
+        return this.selected.forEach(val => {
           const { name } = val.track;
           const { name: artistName } = val.track.artists[0];
+
           // Validation tracks exist
-          if (state.includes(val)) {
+          if (state.find(v => v.track.id === val.track.id)) {
             this.snackbarProps.model = true;
             this.snackbarProps.msg = `${artistName} - ${name}`;
             this.snackbarProps.type = "yellow";
@@ -258,14 +273,15 @@ export default {
         });
       }
 
-      if (args === "top") {
+      if (args) {
         // if true, find the tracks array
         this.tracks.filter(v => {
           this.selected.forEach(val => {
             if (v.track.id === val.track.id) {
-              v.category = "Top 40";
-              this.argument = "top";
+              v.category = tags;
+              this.argument = args;
               this.snackbarProps.model = true;
+              this.snackbarProps.text = tags;
               this.snackbarProps.msg = `${this.selected.length} ${
                 this.selected.length > 1 ? "songs" : "song"
               }`;

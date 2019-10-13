@@ -1,9 +1,11 @@
 <template>
   <v-toolbar class="py-1" flat :color="dark ? 'grey darken-4' : 'accent'">
-    <v-icon to="/" large>mdi-spotify</v-icon>
+    <v-btn icon to="/">
+      <v-icon large>mdi-spotify</v-icon>
+    </v-btn>
 
-    <v-toolbar-title v-show="!$vuetify.breakpoint.xsOnly " class="text-uppercase">
-      <span class="teal--text text--lighten-1">vue</span> spot
+    <v-toolbar-title v-show="!$vuetify.breakpoint.xsOnly" class="text-uppercase">
+      <span to="/" class="teal--text text--lighten-1">vue</span> spot
     </v-toolbar-title>
 
     <v-spacer></v-spacer>

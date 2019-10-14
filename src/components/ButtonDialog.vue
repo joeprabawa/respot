@@ -117,6 +117,7 @@
                 <td>{{ props.item.track.album.release_date.substring(0,4) }}</td>
                 <td>{{ props.item.category }}</td>
                 <td>{{ props.item.tempo }}</td>
+                <td>{{` ${props.item.sign } / ${props.item.mode == 0 ? 'Minor' :'Major'}`}}</td>
                 <td>{{ props.item.remark}}</td>
               </tr>
             </template>
@@ -246,7 +247,6 @@ export default {
       else this.selected = this.tracks.slice();
     },
     selectOption(args, tags) {
-      console.log(args);
       if (args === "save") {
         this.argument = "save";
         const state = this.$store.state.studio;

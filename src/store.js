@@ -161,7 +161,7 @@ export default new Vuex.Store({
     tracks(state) {
       const edited = state.tracks.map(track => {
         const { release_date } = track.track.album;
-        let { mark, category } = track;
+        let { mark, category, key } = track;
 
         // Set Category
         const getYear = parseInt(release_date.substring(0, 4));
@@ -189,7 +189,50 @@ export default new Vuex.Store({
         else if (floor >= 4 && floor <= 7) remark = "M";
         else if (floor === 8) remark = " M+";
         else remark = "B";
-        return { ...track, category, remark };
+
+        let sign = "";
+        switch (key) {
+          case 0:
+            sign = "C";
+            break;
+          case 1:
+            sign = "C♯";
+            break;
+          case 2:
+            sign = "D";
+            break;
+          case 3:
+            sign = "D♯,E♭";
+            break;
+          case 4:
+            sign = "E";
+            break;
+          case 5:
+            sign = "F";
+            break;
+          case 6:
+            sign = "F♯,G♭";
+            break;
+          case 7:
+            sign = "G";
+            break;
+          case 8:
+            sign = "G♯,A♭";
+            break;
+          case 9:
+            sign = "A";
+            break;
+          case 10:
+            sign = "A♯,B♭";
+            break;
+          case 11:
+            sign = "B";
+            break;
+
+          default:
+            sign = "C";
+        }
+        return { ...track, category, remark, sign };
       });
 
       return edited;

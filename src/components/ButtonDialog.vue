@@ -18,7 +18,7 @@
         <v-btn icon @click="close">
           <v-icon>close</v-icon>
         </v-btn>
-        <v-toolbar-title>Playlist Detail</v-toolbar-title>
+        <v-toolbar-title>Playlist Detail / {{plyName}}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-menu left offset-y v-if="$vuetify.breakpoint.xsOnly">
@@ -126,18 +126,24 @@
       </v-layout>
     </v-card>
     <v-snackbar
+      :class="snackbarProps.type === 'yellow' ? 'grey--text text--darken-2' :'white--text'"
+      :color="snackbarProps.type"
       bottom
       left
       multi-line
-      :color="snackbarProps.type"
-      class="grey--text text--darken-4"
       v-model="snackbarProps.model"
     >
       <span class="text-capitalize">
         <h3>{{ snackbarProps.msg }}</h3>
-        {{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument === `${argument}` ? `Success changed to ${snackbarProps.text}` :'Failed to change' }}
+        {{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument === `${argument}` ? `Success changed to ${snackbarProps.text}` :'Already in database!' }}
       </span>
-      <v-btn class="grey--text text--darken-4" flat text @click="snackbarProps.model = false">Close</v-btn>
+      <v-btn
+        :class="snackbarProps.type === 'yellow' ? 'grey--text text--darken-2' :'white--text'"
+        icon
+        @click="snackbarProps.model = false"
+      >
+        <v-icon>close</v-icon>
+      </v-btn>
     </v-snackbar>
   </v-dialog>
 </template>
@@ -146,11 +152,12 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import db from "@/nedb";
 
 export default {
   name: "ButtonDialog",
 
-  props: ["item"],
+  props: ["item", "plyName"],
   data: () => ({
     argument: "",
     singleSelect: false,
@@ -249,31 +256,36 @@ export default {
     selectOption(args, tags) {
       if (args === "save") {
         this.argument = "save";
-        const state = this.$store.state.studio;
 
-        return this.selected.forEach(val => {
+        this.selected.forEach(val => {
           const { name } = val.track;
           const { name: artistName } = val.track.artists[0];
+          db.find({}, (err, docs) => {
+            console.log(docs);
+            const x = docs.find(v => v.track.id === val.track.id);
 
-          // Validation tracks exist
-          if (state.find(v => v.track.id === val.track.id)) {
-            this.snackbarProps.model = true;
-            this.snackbarProps.msg = `${artistName} - ${name}`;
-            this.snackbarProps.type = "yellow";
-          } else {
-            this.$store.commit("storeToStudio", val);
-            this.snackbarProps.model = true;
-            this.snackbarProps.msg =
-              this.selected.length > 1
-                ? `${this.selected.length} songs`
-                : `${artistName} - ${name}`;
+            if (x) {
+              this.snackbarProps.model = true;
+              this.snackbarProps.msg = `${artistName} - ${name}`;
+              this.snackbarProps.type = "yellow";
+            } else {
+              db.insert(val);
+              this.snackbarProps.model = true;
+              this.snackbarProps.msg =
+                this.selected.length > 1
+                  ? `${this.selected.length} songs`
+                  : `${artistName} - ${name}`;
 
-            this.snackbarProps.type = "success";
-          }
+              this.snackbarProps.type = "success";
+            }
+
+            // Validation tracks exist
+            // this.$store.commit("storeToStudio", val);
+          });
         });
       }
 
-      if (args) {
+      if (args != "save") {
         // if true, find the tracks array
         this.tracks.filter(v => {
           this.selected.forEach(val => {

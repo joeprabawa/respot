@@ -196,7 +196,7 @@ export default new Vuex.Store({
             sign = "C";
             break;
           case 1:
-            sign = "C♯";
+            sign = "C♯,D♭";
             break;
           case 2:
             sign = "D";

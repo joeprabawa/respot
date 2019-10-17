@@ -53,7 +53,7 @@
     >
       <v-btn @click="indo(item.id)" flat>mark as indo</v-btn>
       <v-spacer></v-spacer>
-      <Dialog :item="item" />
+      <Dialog :item="item" :plyName="item.name" />
     </v-card-actions>
     <v-snackbar bottom left multi-line color="success" v-model="snackbar">
       <span>

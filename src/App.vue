@@ -1,6 +1,6 @@
 <template>
   <v-app :dark="dark">
-    <Navbar/>
+    <Navbar />
     <v-content>
       <v-container fill-height grid-list-md>
         <v-slide-y-reverse-transition :hide-on-leave="true">
@@ -8,7 +8,7 @@
         </v-slide-y-reverse-transition>
       </v-container>
     </v-content>
-    <BottomNav/>
+    <BottomNav />
   </v-app>
 </template>
 

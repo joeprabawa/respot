@@ -152,7 +152,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import db from "@/nedb";
+import { db } from "@/nedb";
 
 export default {
   name: "ButtonDialog",
@@ -260,11 +260,9 @@ export default {
         this.selected.forEach(val => {
           const { name } = val.track;
           const { name: artistName } = val.track.artists[0];
-          db.find({}, (err, docs) => {
-            console.log(docs);
-            const x = docs.find(v => v.track.id === val.track.id);
 
-            if (x) {
+          db.findOne({ "track.id": `${val.track.id}` }, (err, doc) => {
+            if (doc) {
               this.snackbarProps.model = true;
               this.snackbarProps.msg = `${artistName} - ${name}`;
               this.snackbarProps.type = "yellow";
@@ -277,10 +275,8 @@ export default {
                   : `${artistName} - ${name}`;
 
               this.snackbarProps.type = "success";
+              db.find({}, (err, docs) => console.log(docs));
             }
-
-            // Validation tracks exist
-            // this.$store.commit("storeToStudio", val);
           });
         });
       }

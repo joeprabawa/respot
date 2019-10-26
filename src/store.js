@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-
+import { CLIENT_ID } from "./key";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -71,13 +71,13 @@ export default new Vuex.Store({
       const authEndpoint = "https://accounts.spotify.com/authorize";
 
       // Replace with your app's client ID, redirect URI and desired scopes
-      const clientId = "753819e3242f444aabc7cadacd11de5b";
+
       const redirectUri = "http://localhost:8080";
       const scopes = ["user-top-read"];
 
       // If there is no token, redirect to Spotify authorization
       if (!_token) {
-        window.location = `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join(
+        window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scopes.join(
           "%20"
         )}&response_type=token&show_dialog=true`;
       }

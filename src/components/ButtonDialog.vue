@@ -14,7 +14,7 @@
       </v-btn>
     </template>
     <v-card>
-      <v-toolbar>
+      <v-toolbar fixed flat>
         <v-btn icon @click="close">
           <v-icon>close</v-icon>
         </v-btn>
@@ -40,6 +40,7 @@
 
           <v-btn
             @click="selectOption(item.value, item.text)"
+            @click.stop="dialog = true"
             v-else
             v-for="item in dropdowns"
             :key="item.value"
@@ -52,7 +53,7 @@
       </v-toolbar>
 
       <v-layout row wrap align-center justify-center>
-        <v-flex md12>
+        <v-flex md12 style="margin-top:5rem">
           <v-data-table
             v-model="selected"
             class="elevation-0"
@@ -125,33 +126,63 @@
         </v-flex>
       </v-layout>
     </v-card>
-    <v-snackbar
-      :class="snackbarProps.type === 'yellow' ? 'grey--text text--darken-2' :'white--text'"
-      :color="snackbarProps.type"
-      bottom
-      left
-      multi-line
-      v-model="snackbarProps.model"
-    >
-      <span class="text-capitalize">
-        <h3>{{ snackbarProps.msg }}</h3>
-        {{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument === `${argument}` ? `Success changed to ${snackbarProps.text}` :'Already in database!' }}
-      </span>
-      <v-btn
-        :class="snackbarProps.type === 'yellow' ? 'grey--text text--darken-2' :'white--text'"
-        icon
-        @click="snackbarProps.model = false"
-      >
-        <v-icon>close</v-icon>
-      </v-btn>
-    </v-snackbar>
+    <v-dialog v-model="snackbarProps.model" max-width="480">
+      <v-card>
+        <v-card-title
+          primary-title
+          :class="snackbarProps.type == 'yellow' ? 'yellow lighten-1' : 'teal'"
+        >
+          <div>
+            <div
+              class="headline"
+              :class="snackbarProps.type == 'yellow' ? 'blue-grey--text text--darken-4' : 'white--text'"
+            >{{snackbarProps.type == 'yellow' ? 'Warning' : 'Success'}}</div>
+            <span
+              :class="snackbarProps.type == 'yellow' ? 'blue-grey--text text--darken-4' : 'white--text'"
+            >{{snackbarProps.type === 'success' && argument ==='save' ? 'success added to database' : snackbarProps.type === 'success' && argument === `${argument}` ? `Success changed song to ${snackbarProps.text}` :'Already in database!' }}</span>
+          </div>
+        </v-card-title>
+
+        <v-card-text>
+          <v-list two-line subheader>
+            <v-subheader
+              inset
+            >{{snackbarProps.type ==='yellow' ? 'Un-checked these following' : 'Added'}} {{vals.length > 1 ? `${vals.length} songs` : `${vals.length} song`}}</v-subheader>
+
+            <v-list-tile v-for="item in vals" :key="item.title" avatar>
+              <v-list-tile-avatar>
+                <v-icon
+                  class="white--text"
+                  :class="snackbarProps.type == 'yellow' ? 'yellow lighten-1 blue-grey--text text--darken-4' : 'teal'"
+                >{{snackbarProps.type == 'yellow' ? 'folder' : 'done'}}</v-icon>
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+                <v-list-tile-title>{{ item.track.name }}</v-list-tile-title>
+                <v-list-tile-sub-title>{{ item.track.artists[0].name }}</v-list-tile-sub-title>
+              </v-list-tile-content>
+
+              <v-list-tile-action>
+                <v-checkbox :value="item" v-model="vals"></v-checkbox>
+              </v-list-tile-action>
+            </v-list-tile>
+          </v-list>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" flat="flat" @click="reset">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-dialog>
 </template>
         
        
 
 <script>
-import { mapActions, mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapCacheActions } from "vuex-cache";
 import { db } from "@/nedb";
 
 export default {
@@ -159,6 +190,7 @@ export default {
 
   props: ["item", "plyName"],
   data: () => ({
+    vals: [],
     argument: "",
     singleSelect: false,
     pagination: {
@@ -227,6 +259,10 @@ export default {
   methods: {
     ...mapActions(["getTrack"]),
     ...mapMutations(["setLoading"]),
+    checkOut() {
+      console.log(this.selected);
+    },
+
     changeSort(column) {
       if (this.pagination.sortBy === column) {
         this.pagination.descending = !this.pagination.descending;
@@ -234,6 +270,10 @@ export default {
         this.pagination.sortBy = column;
         this.pagination.descending = false;
       }
+    },
+    reset() {
+      this.snackbarProps.model = false;
+      this.vals = [];
     },
     detail(payload) {
       this.item.show = !this.item.show;
@@ -256,27 +296,22 @@ export default {
     selectOption(args, tags) {
       if (args === "save") {
         this.argument = "save";
-
         this.selected.forEach(val => {
-          const { name } = val.track;
-          const { name: artistName } = val.track.artists[0];
+          db.find({}, (err, docs) => {
+            const exist = docs.filter(v => {
+              const same = this.selected.find(
+                val => val.track.id === v.track.id
+              );
+              return same;
+            });
 
-          db.findOne({ "track.id": `${val.track.id}` }, (err, doc) => {
-            if (doc) {
-              this.snackbarProps.model = true;
-              this.snackbarProps.msg = `${artistName} - ${name}`;
-              this.snackbarProps.type = "yellow";
-            } else {
-              db.insert(val);
-              this.snackbarProps.model = true;
-              this.snackbarProps.msg =
-                this.selected.length > 1
-                  ? `${this.selected.length} songs`
-                  : `${artistName} - ${name}`;
-
-              this.snackbarProps.type = "success";
-              db.find({}, (err, docs) => console.log(docs));
-            }
+            exist.length == 0
+              ? (db.insert(val, (err, doc) => this.vals.push(doc)),
+                (this.snackbarProps.model = true),
+                (this.snackbarProps.type = "success"))
+              : ((this.snackbarProps.model = true),
+                (this.vals = [...exist]),
+                (this.snackbarProps.type = "yellow"));
           });
         });
       }

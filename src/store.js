@@ -1,9 +1,11 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { CLIENT_ID } from "./key";
+import createCache from "vuex-cache";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  plugins: [createCache({ timeout: 1000000 })],
   state: {
     token: "",
     playlists: [],
@@ -170,7 +172,7 @@ export default new Vuex.Store({
         const substract = year - getYear;
 
         if (category === "Indonesia") {
-          category = category;
+          category = "Indonesia";
         } else if (getYear === year) {
           category = "Top 40";
         } else if (substract === 1) {

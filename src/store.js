@@ -5,7 +5,7 @@ import createCache from "vuex-cache";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  plugins: [createCache({ timeout: 1000000 })],
+  plugins: [createCache()],
   state: {
     token: "",
     playlists: [],

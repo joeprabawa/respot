@@ -14,7 +14,7 @@
       </v-btn>
     </template>
     <v-card>
-      <v-toolbar fixed flat>
+      <v-toolbar flat>
         <v-btn icon @click="close">
           <v-icon>close</v-icon>
         </v-btn>
@@ -53,7 +53,7 @@
       </v-toolbar>
 
       <v-layout row wrap align-center justify-center>
-        <v-flex md12 style="margin-top:5rem">
+        <v-flex md12>
           <v-data-table
             v-model="selected"
             class="elevation-0"
@@ -126,8 +126,8 @@
         </v-flex>
       </v-layout>
     </v-card>
-    <v-dialog v-model="snackbarProps.model" max-width="480">
-      <v-card>
+    <v-dialog scrollable v-model="snackbarProps.model" max-width="480">
+      <v-card style="border-radius:15px">
         <v-card-title
           primary-title
           :class="snackbarProps.type == 'yellow' ? 'yellow lighten-1' : 'teal'"
@@ -143,7 +143,7 @@
           </div>
         </v-card-title>
 
-        <v-card-text>
+        <v-card-text style="height: 350px;">
           <v-list two-line subheader>
             <v-subheader
               inset
@@ -161,17 +161,34 @@
                 <v-list-tile-title>{{ item.track.name }}</v-list-tile-title>
                 <v-list-tile-sub-title>{{ item.track.artists[0].name }}</v-list-tile-sub-title>
               </v-list-tile-content>
-
-              <v-list-tile-action>
-                <v-checkbox :value="item" v-model="vals"></v-checkbox>
-              </v-list-tile-action>
+              <v-btn
+                v-if="snackbarProps.type == 'yellow'"
+                @click="remove(item)"
+                fab
+                flat
+                dark
+                small
+                :color="dark ? 'yellow lighten-1': 'black'"
+              >
+                <v-icon dark>remove</v-icon>
+              </v-btn>
             </v-list-tile>
           </v-list>
         </v-card-text>
-
+        <v-divider></v-divider>
         <v-card-actions>
+          <v-btn
+            :color="snackbarProps.type == 'yellow' && dark ? 'white' : snackbarProps.type == 'yellow' && !dark ? 'black':'teal lighten-3'  "
+            flat="flat"
+            @click="reset"
+          >Close</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click="reset">Close</v-btn>
+          <v-btn
+            v-if="snackbarProps.type == 'yellow'"
+            :color="snackbarProps.type == 'yellow' && dark ? 'yellow lighten-1' : snackbarProps.type == 'yellow' && !dark ? 'black':'teal lighten-3'  "
+            flat="flat"
+            @click="save"
+          >proceed anyaway</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -181,7 +198,7 @@
        
 
 <script>
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import { mapCacheActions } from "vuex-cache";
 import { db } from "@/nedb";
 
@@ -191,6 +208,7 @@ export default {
   props: ["item", "plyName"],
   data: () => ({
     vals: [],
+
     argument: "",
     singleSelect: false,
     pagination: {
@@ -253,14 +271,44 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters(["tracks", "trackLoading"])
+    ...mapGetters(["tracks", "trackLoading"]),
+    ...mapState(["dark"])
   },
 
   methods: {
-    ...mapActions(["getTrack"]),
+    ...mapCacheActions(["getTrack"]),
     ...mapMutations(["setLoading"]),
-    checkOut() {
-      console.log(this.selected);
+
+    remove({ track: { id } }) {
+      console.log(id);
+      this.selected = this.selected.filter(v => v.track.id !== id);
+      this.vals = this.vals.filter(v => v.track.id !== id);
+      if (this.vals.length == 0) this.reset();
+    },
+    save() {
+      db.find({}, (err, doc) => {
+        this.selected.filter(val => {
+          const x = doc.find(value => value.track.id !== val.track.id);
+          console.log(x);
+          return x;
+        });
+      });
+
+      // this.selected.forEach(val => {
+      // db.find({}, (err, docs) => {
+      //   const exist = docs.filter(v => {
+      //     const same = this.selected.find(val => val.track.id === v.track.id);
+      //     return same;
+      //   });
+      //   exist.length == 0
+      //     ? (db.insert(val, (err, doc) => this.vals.push(doc)),
+      //       (this.snackbarProps.model = true),
+      //       (this.snackbarProps.type = "success"))
+      //     : ((this.snackbarProps.model = true),
+      //       (this.vals = [...exist]),
+      //       (this.snackbarProps.type = "yellow"));
+      // });
+      // });
     },
 
     changeSort(column) {
@@ -280,6 +328,7 @@ export default {
       this.getTrack(payload).then(() => {
         this.dialog = true;
       });
+      console.log(this.$store.cache.has("getTrack", payload));
     },
     close() {
       this.dialog = false;

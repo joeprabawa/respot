@@ -184,6 +184,7 @@
           >Close</v-btn>
           <v-spacer></v-spacer>
           <v-btn
+            :disabled="snackbarProps.type === 'yellow' ? true:false"
             v-if="snackbarProps.type == 'yellow'"
             :color="snackbarProps.type == 'yellow' && dark ? 'yellow lighten-1' : snackbarProps.type == 'yellow' && !dark ? 'black':'teal lighten-3'  "
             flat="flat"
@@ -198,15 +199,15 @@
        
 
 <script>
-import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
-import { mapCacheActions } from "vuex-cache";
-import { db } from "@/nedb";
+import { mapGetters, mapMutations, mapState, mapActions } from "vuex";
+import db from "@/nedb";
 
 export default {
   name: "ButtonDialog",
 
   props: ["item", "plyName"],
   data: () => ({
+    datas: [],
     vals: [],
 
     argument: "",
@@ -276,39 +277,28 @@ export default {
   },
 
   methods: {
-    ...mapCacheActions(["getTrack"]),
+    ...mapActions(["getTrack"]),
     ...mapMutations(["setLoading"]),
 
     remove({ track: { id } }) {
-      console.log(id);
       this.selected = this.selected.filter(v => v.track.id !== id);
       this.vals = this.vals.filter(v => v.track.id !== id);
       if (this.vals.length == 0) this.reset();
     },
-    save() {
-      db.find({}, (err, doc) => {
-        this.selected.filter(val => {
-          const x = doc.find(value => value.track.id !== val.track.id);
-          console.log(x);
-          return x;
-        });
+
+    async save() {
+      let docs = await db.find({});
+      this.datas = await docs;
+
+      const res = this.selected.filter(val => {
+        return !this.data.find(v => v.track.id === val.track.id);
       });
 
-      // this.selected.forEach(val => {
-      // db.find({}, (err, docs) => {
-      //   const exist = docs.filter(v => {
-      //     const same = this.selected.find(val => val.track.id === v.track.id);
-      //     return same;
-      //   });
-      //   exist.length == 0
-      //     ? (db.insert(val, (err, doc) => this.vals.push(doc)),
-      //       (this.snackbarProps.model = true),
-      //       (this.snackbarProps.type = "success"))
-      //     : ((this.snackbarProps.model = true),
-      //       (this.vals = [...exist]),
-      //       (this.snackbarProps.type = "yellow"));
-      // });
-      // });
+      db.insert(res).then(doc => {
+        this.vals = doc;
+        this.snackbarProps.model = true;
+        this.snackbarProps.type = "success";
+      });
     },
 
     changeSort(column) {
@@ -328,7 +318,7 @@ export default {
       this.getTrack(payload).then(() => {
         this.dialog = true;
       });
-      console.log(this.$store.cache.has("getTrack", payload));
+      // console.log(this.$store.cache.has("getTrack", payload));
     },
     close() {
       this.dialog = false;
@@ -345,22 +335,36 @@ export default {
     selectOption(args, tags) {
       if (args === "save") {
         this.argument = "save";
+
         this.selected.forEach(val => {
-          db.find({}, (err, docs) => {
+          db.find({}).then(docs => {
             const exist = docs.filter(v => {
               const same = this.selected.find(
                 val => val.track.id === v.track.id
               );
               return same;
             });
-
-            exist.length == 0
-              ? (db.insert(val, (err, doc) => this.vals.push(doc)),
-                (this.snackbarProps.model = true),
-                (this.snackbarProps.type = "success"))
-              : ((this.snackbarProps.model = true),
-                (this.vals = [...exist]),
-                (this.snackbarProps.type = "yellow"));
+            if (exist.length == 0) {
+              db.insert(val).then(doc => {
+                this.vals.push(doc);
+                this.snackbarProps.model = true;
+                this.snackbarProps.type = "success";
+              });
+            } else {
+              const res = this.selected.filter(val => {
+                return !this.datas.find(v => v.track.id === val.track.id);
+              });
+              if (res.length == 0) {
+                this.vals = this.vals;
+                this.persistent = true;
+                this.snackbarProps.type = "yellow";
+              } else {
+                this.snackbarProps.type = "sucess";
+              }
+              this.snackbarProps.model = true;
+              this.vals = [...exist];
+              this.snackbarProps.type = "yellow";
+            }
           });
         });
       }

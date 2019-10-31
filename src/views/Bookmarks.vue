@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { db } from "@/nedb";
+import db from "@/nedb";
 export default {
   data() {
     return {
@@ -136,7 +136,7 @@ export default {
     };
   },
   mounted() {
-    db.find({}, (err, docs) => (this.tracks = docs));
+    db.find({}).then(docs => (this.tracks = docs));
   },
   methods: {
     changeSort(column) {

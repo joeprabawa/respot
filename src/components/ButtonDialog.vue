@@ -184,7 +184,7 @@
           >Close</v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            :disabled="snackbarProps.type === 'yellow' ? true:false"
+            :disabled="disable"
             v-if="snackbarProps.type == 'yellow'"
             :color="snackbarProps.type == 'yellow' && dark ? 'yellow lighten-1' : snackbarProps.type == 'yellow' && !dark ? 'black':'teal lighten-3'  "
             flat="flat"
@@ -209,7 +209,7 @@ export default {
   data: () => ({
     datas: [],
     vals: [],
-
+    disable: null,
     argument: "",
     singleSelect: false,
     pagination: {
@@ -283,22 +283,25 @@ export default {
     remove({ track: { id } }) {
       this.selected = this.selected.filter(v => v.track.id !== id);
       this.vals = this.vals.filter(v => v.track.id !== id);
-      if (this.vals.length == 0) this.reset();
+      if (this.vals.length == 0) this.disable = false;
     },
 
     async save() {
       let docs = await db.find({});
       this.datas = await docs;
-
       const res = this.selected.filter(val => {
-        return !this.data.find(v => v.track.id === val.track.id);
+        return !this.datas.find(v => v.track.id === val.track.id);
       });
 
-      db.insert(res).then(doc => {
-        this.vals = doc;
-        this.snackbarProps.model = true;
-        this.snackbarProps.type = "success";
-      });
+      if (this.vals.length == 0) {
+        this.reset();
+      } else {
+        db.insert(res).then(doc => {
+          this.vals = doc;
+          this.snackbarProps.model = true;
+          this.snackbarProps.type = "success";
+        });
+      }
     },
 
     changeSort(column) {
@@ -318,7 +321,6 @@ export default {
       this.getTrack(payload).then(() => {
         this.dialog = true;
       });
-      // console.log(this.$store.cache.has("getTrack", payload));
     },
     close() {
       this.dialog = false;
@@ -337,30 +339,38 @@ export default {
         this.argument = "save";
 
         this.selected.forEach(val => {
-          db.find({}).then(docs => {
+          db.find({}).then(async docs => {
             const exist = docs.filter(v => {
               const same = this.selected.find(
                 val => val.track.id === v.track.id
               );
               return same;
             });
+
+            let documents = await db.find({});
+            this.datas = await documents;
+
+            const res = this.selected.filter(val => {
+              return !this.datas.find(v => v.track.id === val.track.id);
+            });
+
             if (exist.length == 0) {
               db.insert(val).then(doc => {
                 this.vals.push(doc);
                 this.snackbarProps.model = true;
                 this.snackbarProps.type = "success";
               });
+            } else if (res.length === 0) {
+              this.vals = exist;
+              this.disable = true;
+              this.snackbarProps.model = true;
+              this.snackbarProps.type = "yellow";
+            } else if (res.length >= 1) {
+              this.vals = exist;
+              this.disable = false;
+              this.snackbarProps.model = true;
+              this.snackbarProps.type = "yellow";
             } else {
-              const res = this.selected.filter(val => {
-                return !this.datas.find(v => v.track.id === val.track.id);
-              });
-              if (res.length == 0) {
-                this.vals = this.vals;
-                this.persistent = true;
-                this.snackbarProps.type = "yellow";
-              } else {
-                this.snackbarProps.type = "sucess";
-              }
               this.snackbarProps.model = true;
               this.vals = [...exist];
               this.snackbarProps.type = "yellow";

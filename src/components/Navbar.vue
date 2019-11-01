@@ -54,7 +54,7 @@ export default {
     loading: false,
     items: [],
     model: null,
-    search: null,
+    search: "",
     show: false,
     select: null,
     states: []
@@ -74,6 +74,7 @@ export default {
       const json = await fetchSearch.json();
       const data = await json;
       const { items } = data.tracks;
+
       setTimeout(async () => {
         this.items = await items.map(({ name }) => {
           return name;

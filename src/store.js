@@ -1,17 +1,27 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import axios from "axios";
 import { CLIENT_ID } from "./key";
-import createCache from "vuex-cache";
+import { setupCache } from "axios-cache-adapter";
+
+const cache = setupCache({
+  maxAge: 15 * 60 * 1000
+});
+
+// Create `axios` instance passing the newly created `cache.adapter`
+const api = axios.create({
+  adapter: cache.adapter
+});
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  plugins: [createCache()],
   state: {
     token: "",
     playlists: [],
     tracks: [],
-    indo: null,
     studio: [],
+    indo: null,
     dark: true,
     loading: false,
     trackLoading: false,
@@ -108,6 +118,7 @@ export default new Vuex.Store({
     },
 
     async getTrack({ commit, state }, payload) {
+      console.log(payload);
       commit("setTracks", []);
       commit("trackLoading", true);
       const options = {
@@ -116,15 +127,18 @@ export default new Vuex.Store({
         }
       };
       const url = `https://api.spotify.com/v1/playlists/${payload}/tracks`;
-      const fetchTrack = await fetch(url, options);
-      const response = await fetchTrack.json();
+
+      const fetchTrack = await api({ url, method: "get", ...options });
+
+      const response = await fetchTrack.data;
       const { items } = response;
 
       const editedTracks = items.map(async item => {
         const { id } = item.track;
         const url = `https://api.spotify.com/v1/audio-features/${id}`;
-        const fetchAudio = await fetch(url, options);
-        const { tempo, energy, mode, key } = await fetchAudio.json();
+        const fetchAudio = await api({ url, method: "get", ...options });
+        console.log(fetchAudio);
+        const { tempo, energy, mode, key } = await fetchAudio.data;
 
         const final = `${Math.round(tempo)} BPM`;
         const markIndo = state.indo === payload ? "Indonesia" : "";

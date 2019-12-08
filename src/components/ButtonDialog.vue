@@ -200,6 +200,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState, mapActions } from "vuex";
+
 import db from "@/nedb";
 
 export default {

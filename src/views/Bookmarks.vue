@@ -1,6 +1,11 @@
 <template>
   <v-layout row align-center justify-center>
     <v-flex xs12>
+      <v-fab-transition>
+        <v-btn v-show="selected.length" dark fixed bottom right fab>
+          <v-icon>add</v-icon>
+        </v-btn>
+      </v-fab-transition>
       <v-data-table
         v-model="selected"
         class="elevation-0"

@@ -27,26 +27,32 @@ export default {
     return {};
   },
   methods: {
-    ...mapActions(["getToken", "getPlaylist", "nextPlaylist"])
+    ...mapActions(["getToken", "getPlaylist", "nextPlaylist"]),
+    async categorized() {
+      const reduced = await db.find({});
+      const data = this.reducing(reduced);
+      return data;
+    },
+    reducing(data) {
+      return data.reduce((acc, v) => {
+        const key = v.category.toLowerCase().replace(/\s/g, "");
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(v);
+        return acc;
+      }, {});
+    },
+    chunck(func) {
+      const data = func;
+      const key = Object.keys(data);
+      return key;
+    }
   },
 
   computed: mapState(["dark", "next"]),
   async mounted() {
     this.getToken();
     this.getPlaylist();
-    const reduced = db.find({}).then(doc => {
-      const reduced = doc.reduce((acc, v) => {
-        var key = acc[v.category];
-        if (!acc[v.category]) {
-          acc[v.category] = [];
-        }
-        acc[v.category].push(v);
-        return acc;
-      }, {});
-      return reduced;
-    });
-    const data = await reduced;
-    console.log(data);
+    console.log(this.chunck(await this.categorized()));
   }
 };
 </script>

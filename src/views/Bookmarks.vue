@@ -2,8 +2,16 @@
   <v-layout row align-center justify-center>
     <v-flex xs12>
       <v-fab-transition>
-        <v-btn v-show="selected.length" dark fixed bottom right fab>
-          <v-icon>add</v-icon>
+        <v-btn
+          @click="remove"
+          v-show="selected.length"
+          :color="this.$store.state.dark ? 'white':'blue-grey darken-4'"
+          fixed
+          bottom
+          right
+          fab
+        >
+          <v-icon :color="this.$store.state.dark ? 'black':'white'">add</v-icon>
         </v-btn>
       </v-fab-transition>
       <v-data-table
@@ -30,7 +38,11 @@
             <th
               v-for="header in props.headers"
               :key="header.text"
-              :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
+              :class="[
+                'column sortable',
+                pagination.descending ? 'desc' : 'asc',
+                header.value === pagination.sortBy ? 'active' : ''
+              ]"
               @click="changeSort(header.value)"
             >
               <v-icon small>arrow_upward</v-icon>
@@ -43,7 +55,7 @@
             <td>
               <v-checkbox :input-value="props.selected" primary hide-details></v-checkbox>
             </td>
-            <td>{{props.index+1}}</td>
+            <td>{{ props.index + 1 }}</td>
             <td>
               <v-avatar :size="36" color="grey lighten-4">
                 <img :src="props.item.track.album.images[0].url" alt="avatar" />
@@ -52,11 +64,11 @@
             <td>
               <v-tooltip v-if="props.item.track.name.length >= 50" dark bottom>
                 <template v-slot:activator="{ on }">
-                  <p v-on="on">{{ truncate(props.item.track.name , 50) }}</p>
+                  <p v-on="on">{{ truncate(props.item.track.name, 50) }}</p>
                 </template>
-                <span>{{props.item.track.name}}</span>
+                <span>{{ props.item.track.name }}</span>
               </v-tooltip>
-              <p v-else>{{ truncate(props.item.track.name , 50) }}</p>
+              <p v-else>{{ truncate(props.item.track.name, 50) }}</p>
             </td>
 
             <td>
@@ -64,14 +76,20 @@
                 <template v-slot:activator="{ on }">
                   <p v-on="on">{{ truncate(props.item.track.artists[0].name, 50) }}</p>
                 </template>
-                <span>{{props.item.track.artists[0].name}}</span>
+                <span>{{ props.item.track.artists[0].name }}</span>
               </v-tooltip>
             </td>
-            <td>{{ props.item.track.album.release_date.substring(0,4) }}</td>
+            <td>{{ props.item.track.album.release_date.substring(0, 4) }}</td>
             <td>{{ props.item.category }}</td>
             <td>{{ props.item.tempo }}</td>
-            <td>{{` ${props.item.sign } / ${props.item.mode == 0 ? 'Minor' :'Major'}`}}</td>
-            <td>{{ props.item.remark}}</td>
+            <td>
+              {{
+              ` ${props.item.sign} / ${
+              props.item.mode == 0 ? "Minor" : "Major"
+              }`
+              }}
+            </td>
+            <td>{{ props.item.remark }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -158,10 +176,20 @@ export default {
     toggleAll() {
       if (this.selected.length) this.selected = [];
       else this.selected = this.tracks.slice();
+    },
+    remove() {
+      const remain = this.selected.map(v => {
+        db.remove({ "track.id": v.track.id }, { multi: true }).then(doc => {
+          console.log(v);
+        });
+      });
+
+      db.find({}).then(docs => {
+        this.tracks = docs;
+      });
     }
   }
 };
 </script>
 
-<style>
-</style>
+<style></style>

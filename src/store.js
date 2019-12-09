@@ -118,7 +118,6 @@ export default new Vuex.Store({
     },
 
     async getTrack({ commit, state }, payload) {
-      console.log(payload);
       commit("setTracks", []);
       commit("trackLoading", true);
       const options = {
@@ -137,7 +136,6 @@ export default new Vuex.Store({
         const { id } = item.track;
         const url = `https://api.spotify.com/v1/audio-features/${id}`;
         const fetchAudio = await api({ url, method: "get", ...options });
-        console.log(fetchAudio);
         const { tempo, energy, mode, key } = await fetchAudio.data;
 
         const final = `${Math.round(tempo)} BPM`;

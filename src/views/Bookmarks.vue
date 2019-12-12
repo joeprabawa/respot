@@ -19,9 +19,9 @@
         class="elevation-0"
         :rows-per-page-items="option"
         :headers="headers"
+        :pagination.sync="pagination"
         :items="tracks"
         select-all
-        :pagination.sync="pagination"
         item-key="track.id"
       >
         <template v-slot:headers="props">
@@ -94,6 +94,10 @@
         </template>
       </v-data-table>
     </v-flex>
+    <v-snackbar :timeout="0" v-model="snackbar" bottom left>
+      {{ text }}
+      <v-btn color="pink" flat @click="snackbar = false">Close</v-btn>
+    </v-snackbar>
   </v-layout>
 </template>
 
@@ -102,6 +106,8 @@ import db from "@/nedb";
 export default {
   data() {
     return {
+      text: "",
+      snackbar: false,
       tracks: [],
       singleSelect: false,
       pagination: {
@@ -178,11 +184,13 @@ export default {
       else this.selected = this.tracks.slice();
     },
     remove() {
-      const remain = this.selected.map(v => {
-        db.remove({ "track.id": v.track.id }, { multi: true }).then(doc => {
-          console.log(v);
-        });
+      this.snackbar = true;
+      const deleted = this.selected.map(v => {
+        db.remove({ "track.id": v.track.id }, { multi: true }).then(doc => doc);
+        return { ...v, showing: true };
       });
+
+      this.text = `${deleted.length} songs deleted`;
 
       db.find({}).then(docs => {
         this.tracks = docs;

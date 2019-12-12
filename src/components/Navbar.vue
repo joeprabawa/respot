@@ -9,28 +9,13 @@
     </v-toolbar-title>
 
     <v-spacer></v-spacer>
-    <v-slide-x-reverse-transition>
-      <v-autocomplete
-        v-show="show"
-        v-model="select"
-        :loading="loading"
-        :items="items"
-        :search-input.sync="search"
-        cache-items
-        class="mx-3"
-        flat
-        hide-no-data
-        hide-details
-        label="Search"
-        solo-inverted
-      ></v-autocomplete>
-    </v-slide-x-reverse-transition>
+
     <v-spacer></v-spacer>
-    <v-btn @click="show = !show" icon>
-      <v-icon>search</v-icon>
-    </v-btn>
 
     <v-btn to="/bookmarks" class="hidden-sm-and-down" icon>
+      <v-icon>mdi-database-settings</v-icon>
+    </v-btn>
+    <v-btn to="/export" class="hidden-sm-and-down" icon>
       <v-icon>book</v-icon>
     </v-btn>
 
@@ -45,25 +30,31 @@
 </template>
 
 <script>
+import debounce from "../utils/debounce";
 import { mapMutations, mapState } from "vuex";
-import { setTimeout } from "timers";
 
 export default {
   data: () => ({
-    hint: "",
-    loading: false,
-    items: [],
-    model: null,
-    search: "",
-    show: false,
-    select: null,
-    states: []
+    search: null,
+
+    debounced: ""
   }),
 
   watch: {
-    async search(val) {
-      let uri = `https://api.spotify.com/v1/search?q=${val}&type=album,artist,track&limit=10`;
+    search: debounce(function(newVal) {
+      this.debounced = newVal;
+      this.searhQuery(this.debounced);
+      this.model = true;
+      if (newVal == "") this.model = false;
+    }, 1000)
+  },
+  methods: {
+    ...mapMutations(["darkMode"]),
+    async searhQuery(q) {
+      this.loading = true;
+      let uri = `https://api.spotify.com/v1/search?q=${q}&type=track&limit=10`;
       const encoded = await encodeURI(uri);
+
       const options = {
         headers: {
           Authorization: `Bearer ${this.token}`
@@ -74,15 +65,11 @@ export default {
       const json = await fetchSearch.json();
       const data = await json;
       const { items } = data.tracks;
+      this.items = items;
 
-      setTimeout(async () => {
-        this.items = await items.map(({ name }) => {
-          return name;
-        });
-      }, 1500);
+      this.loading = false;
     }
   },
-  methods: mapMutations(["darkMode"]),
   computed: mapState(["token", "dark"])
 };
 </script>

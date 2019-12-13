@@ -4,7 +4,11 @@
       <v-expansion-panel class="elevation-0">
         <v-expansion-panel-content v-for="(item,i) in items" :key="i">
           <template v-slot:header>
-            <div class="display-1">{{item.jam}}</div>
+            <div class="display-1">
+              <v-avatar color="red">
+                <span class="white--text headline">{{item.jam}}</span>
+              </v-avatar>
+            </div>
           </template>
           <v-card>
             <v-card-text>

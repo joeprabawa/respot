@@ -9,6 +9,7 @@
           <v-card>
             <v-card-text>
               <v-data-table
+                :disable-initial-sort="true"
                 :rows-per-page-items="option"
                 :headers="headers"
                 :items="item.songs"
@@ -42,6 +43,7 @@
 
 <script>
 import db from "@/nedb";
+import { log } from "util";
 
 export default {
   data: () => ({
@@ -74,12 +76,8 @@ export default {
       { text: "Mark", value: "mark" }
     ]
   }),
+
   methods: {
-    async categorized() {
-      const reduced = await db.find({});
-      const data = this.reducing(reduced);
-      return data;
-    },
     reducing(data) {
       return data.reduce((acc, v) => {
         const key = v.category.toLowerCase().replace(/\s/g, "");
@@ -88,31 +86,34 @@ export default {
         return acc;
       }, {});
     },
+    sorting(params, n) {
+      return params.sort((a, b) => Math.random() - Math.random()).slice(0, n);
+    },
+    async categorized() {
+      const reduced = await db.find({});
+      const data = this.reducing(reduced);
+      return data;
+    },
     chunck(func) {
-      let top = func.top40
-          .sort((a, b) => Math.random() - Math.random())
-          .slice(0, 2),
-        rec = func.recurrent
-          .sort((a, b) => Math.random() - Math.random())
-          .slice(0, 3),
-        cur = func.current
-          .sort((a, b) => Math.random() - Math.random())
-          .slice(0, 3),
-        old = func.oldies
-          .sort((a, b) => Math.random() - Math.random())
-          .slice(0, 3),
-        indo = func.indonesia
-          .sort((a, b) => Math.random() - Math.random())
-          .slice(0, 3),
+      let top = this.sorting(func.top40, 2),
+        rec = this.sorting(func.recurrent, 3),
+        cur = this.sorting(func.current, 3),
+        old = this.sorting(func.oldies, 3),
+        indo = this.sorting(func.indonesia, 3),
         combine = [...top, ...cur, ...rec, ...old, ...indo];
       return combine;
     },
-    final(params) {
+    async final() {
       const playlists = [];
       for (let i = 6; i <= 26; i++) {
+        const generateSongs = async () => {
+          for (let index = i; index < 26; index++) {
+            return this.chunck(await this.categorized());
+          }
+        };
         let obj = {
           jam: i,
-          songs: params
+          songs: await generateSongs()
         };
         playlists.push(obj);
       }
@@ -120,9 +121,7 @@ export default {
     }
   },
   async mounted() {
-    this.items = this.final(this.chunck(await this.categorized()));
-    console.log(this.final(this.chunck(await this.categorized())));
-    console.log(this.items);
+    this.items = await this.final();
   }
 };
 </script>

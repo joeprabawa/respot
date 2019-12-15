@@ -5,8 +5,8 @@
         <v-expansion-panel-content v-for="(item, i) in items" :key="i">
           <template v-slot:header>
             <div class="display-1">
-              <v-avatar color="red">
-                <span class="white--text headline">{{ item.jam }}</span>
+              <v-avatar color="white">
+                <span class="blue-grey--text text--darken-4 headline">{{ item.jam }}</span>
               </v-avatar>
             </div>
           </template>
@@ -22,19 +22,15 @@
                 <template v-slot:items="props">
                   <td>{{ props.index + 1 }}</td>
                   <td class="text-xs-left">{{ props.item.track.name }}</td>
-                  <td class="text-xs-left">
-                    {{ props.item.track.artists[0].name }}
-                  </td>
-                  <td class="text-xs-left">
-                    {{ props.item.track.album.release_date.substring(0, 4) }}
-                  </td>
+                  <td class="text-xs-left">{{ props.item.track.artists[0].name }}</td>
+                  <td class="text-xs-left">{{ props.item.track.album.release_date.substring(0, 4) }}</td>
                   <td class="text-xs-left">{{ props.item.category }}</td>
                   <td class="text-xs-left">{{ props.item.tempo }}</td>
                   <td>
                     {{
-                      ` ${props.item.sign} / ${
-                        props.item.mode == 0 ? "Minor" : "Major"
-                      }`
+                    ` ${props.item.sign} / ${
+                    props.item.mode == 0 ? "Minor" : "Major"
+                    }`
                     }}
                   </td>
                   <td>{{ props.item.remark }}</td>
@@ -93,16 +89,17 @@ export default {
       }, {});
     },
     sorting(params, n) {
-      1; // return params
+      // 1)
+      // return params
       //   .map(a => [Math.random(), a])
       //   .sort((a, b) => a[0] - b[0])
       //   .map(a => a[1])
       //   .slice(0, n);
 
-      2; // params.sort((a, b) => Math.random() - Math.random()).slice(0, n);
-      let counter = params.length;
+      // 2) params.sort((a, b) => Math.random() - Math.random()).slice(0, n);
 
       // While there are elements in the array
+      let counter = params.length;
       while (counter > 0) {
         // Pick a random index
         let index = Math.floor(Math.random() * counter);

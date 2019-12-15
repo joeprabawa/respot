@@ -189,7 +189,7 @@ export default new Vuex.Store({
           category = "Top 40";
         } else if (substract === 1) {
           category = "Current";
-        } else if (substract >= 2 && substract < 10) {
+        } else if (substract >= 2 && substract <= 18) {
           category = "Recurrent";
         } else {
           category = "Oldies";

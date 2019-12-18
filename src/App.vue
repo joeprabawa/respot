@@ -36,3 +36,8 @@ export default {
   }
 };
 </script>
+<style >
+main.v-content {
+  padding: 0px !important;
+}
+</style>

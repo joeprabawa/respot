@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-data-table
+      :disable-initial-sort="true"
       v-model="selected"
       class="elevation-0"
       :rows-per-page-items="rows"

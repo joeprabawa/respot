@@ -202,6 +202,7 @@
 import { mapGetters, mapMutations, mapState, mapActions } from "vuex";
 
 import db from "@/nedb";
+import { datatable } from "../utils/helpers";
 
 export default {
   name: "ButtonDialog",
@@ -244,27 +245,8 @@ export default {
     ],
     selected: [],
     dialog: false,
-    option: [
-      10,
-      25,
-      { text: "$vuetify.dataIterator.rowsPerPageAll", value: -1 }
-    ],
-
-    headers: [
-      { text: "#", value: "index", sortable: false, width: 10 },
-      { text: "Art", value: "art" },
-      {
-        text: "Title",
-        align: "left",
-        value: "track.name"
-      },
-      { text: "Artist", value: "track.artists[0].name" },
-      { text: "Year", value: "track.album.release_date" },
-      { text: "Category", value: "category" },
-      { text: "BPM", value: "tempo" },
-      { text: "Key/Mode", value: "mode" },
-      { text: "Mark", value: "mark" }
-    ],
+    option: datatable.option,
+    headers: datatable.headers,
     snackbarProps: {
       model: false,
       msg: null,

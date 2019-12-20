@@ -9,13 +9,13 @@
           </v-flex>
         </v-layout>
         <v-snackbar
-          :color="this.dark ? 'white' : 'blue-grey darken-4'"
+          :color="dark ? 'white' : 'blue-grey darken-4'"
           v-model="snackbar.on"
           bottom
           left
           :timeout="snackbar.timeout"
         >
-          <span :class="this.dark ? 'black--text': 'white--text' ">{{ snackbar.msg }}</span>
+          <span :class="dark ? 'black--text': 'white--text' ">{{ snackbar.msg }}</span>
           <v-btn color="pink" flat @click="snackbar.on = false">Close</v-btn>
         </v-snackbar>
         <v-layout row align-center justify-center>

@@ -111,7 +111,7 @@
                     <v-list-tile-action>
                       <v-icon>home</v-icon>
                     </v-list-tile-action>
-                    <v-list-tile-title>Home</v-list-tile-title>
+                    <v-list-tile-title>Category</v-list-tile-title>
                   </v-list-tile>
 
                   <v-list-group prepend-icon="account_circle" value="true">
@@ -199,12 +199,14 @@
 
 <script>
 import db from "@/nedb";
+import { categorized, datatable } from "../utils/helpers";
 
 export default {
   data() {
     return {
+      headers: datatable.headers,
+      option: datatable.option,
       song: {},
-
       tabs: [
         {
           name: "Table View",
@@ -222,53 +224,7 @@ export default {
       pagination: {
         sortBy: "name"
       },
-      dropdowns: [
-        {
-          value: "save",
-          text: "Save"
-        },
-        {
-          value: "top",
-          text: "Top 40"
-        },
-        {
-          value: "cur",
-          text: "Current"
-        },
-        {
-          value: "rec",
-          text: "Recurrent"
-        },
-        {
-          value: "old",
-          text: "Oldies"
-        },
-        {
-          value: "id",
-          text: "Indonesia"
-        }
-      ],
       selected: [],
-      option: [
-        10,
-        25,
-        { text: "$vuetify.dataIterator.rowsPerPageAll", value: -1 }
-      ],
-      headers: [
-        { text: "#", value: "index", sortable: false, width: 10 },
-        { text: "Art", value: "art" },
-        {
-          text: "Title",
-          align: "left",
-          value: "track.name"
-        },
-        { text: "Artist", value: "track.artists[0].name" },
-        { text: "Year", value: "track.album.release_date" },
-        { text: "Category", value: "category" },
-        { text: "BPM", value: "tempo" },
-        { text: "Key/Mode", value: "mode" },
-        { text: "Mark", value: "mark" }
-      ],
       items: []
     };
   },
@@ -294,6 +250,7 @@ export default {
         };
       });
     },
+
     async toItems() {
       const {
         top40,
@@ -301,7 +258,7 @@ export default {
         recurrent,
         oldies,
         indonesia
-      } = await this.categorized();
+      } = await categorized();
       const obj = [
         {
           name: `Top 40 (${top40.length})`,
@@ -326,19 +283,7 @@ export default {
       ];
       return (this.items = [...obj]);
     },
-    async categorized() {
-      const reduced = await db.find({});
-      const data = this.reducing(reduced);
-      return data;
-    },
-    reducing(data) {
-      return data.reduce((acc, v) => {
-        const key = v.category.toLowerCase().replace(/\s/g, "");
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(v);
-        return acc;
-      }, {});
-    },
+
     changeSort(column) {
       if (this.pagination.sortBy === column) {
         this.pagination.descending = !this.pagination.descending;

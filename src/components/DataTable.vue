@@ -1,12 +1,13 @@
 <template>
   <div>
     <v-data-table
-      :disable-initial-sort="true"
       v-model="selected"
-      class="elevation-0"
-      :rows-per-page-items="rows"
+      :rows-per-page-items="option"
       :headers="headers"
       :items="items"
+      :pagination.sync="pagination"
+      class="elevation-0"
+      select-all
       item-key="track.id"
     >
       <template v-slot:headers="props">
@@ -17,10 +18,18 @@
               :indeterminate="props.indeterminate"
               primary
               hide-details
-              @click.stop="selectall"
+              @click.stop="toggleAll"
             ></v-checkbox>
           </th>
-          <th v-for="header in props.headers" :key="header.text">{{ header.text }}</th>
+          <th
+            v-for="header in props.headers"
+            :key="header.text"
+            :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
+            @click="changeSort(header.value)"
+          >
+            <v-icon small>arrow_upward</v-icon>
+            {{ header.text }}
+          </th>
         </tr>
       </template>
       <template v-slot:items="props">
@@ -55,6 +64,7 @@
           <td>{{ props.item.track.album.release_date.substring(0,4) }}</td>
           <td>{{ props.item.category }}</td>
           <td>{{ props.item.tempo }}</td>
+          <td>{{` ${props.item.sign } / ${props.item.mode == 0 ? 'Minor' :'Major'}`}}</td>
           <td>{{ props.item.remark}}</td>
         </tr>
       </template>
@@ -63,17 +73,49 @@
 </template>
 
 <script>
+import { datatable } from "../utils/helpers";
+import { mapMutations } from "vuex";
+
 export default {
   name: "Datatable",
-  props: ["model", "rows", "headers", "items", "truncate", "selectall"],
+  props: ["items"],
   data() {
     return {
-      selected: this.model
+      option: datatable.option,
+      headers: datatable.headers,
+      pagination: {
+        sortBy: "name"
+      },
+      selecting: []
     };
   },
-  watch: {
-    selected: newVal => {
-      return newVal;
+
+  computed: {
+    selected: {
+      get() {
+        return this.$store.state.selected;
+      },
+      set(value) {
+        this.setSelected(value);
+      }
+    }
+  },
+  methods: {
+    ...mapMutations(["setSelected"]),
+    truncate(str, length) {
+      return str.length >= length ? `${str.substring(0, length)} ....` : str;
+    },
+    toggleAll() {
+      if (this.selected.length) this.setSelected([]);
+      else this.setSelected(this.items.slice());
+    },
+    changeSort(column) {
+      if (this.pagination.sortBy === column) {
+        this.pagination.descending = !this.pagination.descending;
+      } else {
+        this.pagination.sortBy = column;
+        this.pagination.descending = false;
+      }
     }
   }
 };

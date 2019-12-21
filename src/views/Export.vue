@@ -12,33 +12,7 @@
           </template>
           <v-card>
             <v-card-text>
-              <v-data-table
-                :disable-initial-sort="true"
-                :rows-per-page-items="option"
-                :headers="headers"
-                :items="item.songs"
-                class="elevation-0"
-              >
-                <template v-slot:items="props">
-                  <td>{{ props.index + 1 }}</td>
-                  <td class="text-xs-left">{{ props.item.track.name }}</td>
-                  <v-avatar :size="36" color="grey lighten-4">
-                    <img :src="props.item.track.album.images[0].url" alt="avatar" />
-                  </v-avatar>
-                  <td class="text-xs-left">{{ props.item.track.artists[0].name }}</td>
-                  <td class="text-xs-left">{{ props.item.track.album.release_date.substring(0, 4) }}</td>
-                  <td class="text-xs-left">{{ props.item.category }}</td>
-                  <td class="text-xs-left">{{ props.item.tempo }}</td>
-                  <td>
-                    {{
-                    ` ${props.item.sign} / ${
-                    props.item.mode == 0 ? "Minor" : "Major"
-                    }`
-                    }}
-                  </td>
-                  <td>{{ props.item.remark }}</td>
-                </template>
-              </v-data-table>
+              <DataTable :items="item.songs" />
             </v-card-text>
           </v-card>
         </v-expansion-panel-content>
@@ -49,8 +23,12 @@
 
 <script>
 import { categorized, datatable } from "../utils/helpers";
+import DataTable from "@/components/DataTable";
 
 export default {
+  components: {
+    DataTable
+  },
   data: () => ({
     items: [],
     headers: datatable.headers,

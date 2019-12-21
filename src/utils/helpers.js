@@ -30,5 +30,5 @@ export const datatable = {
     { text: "Key/Mode", value: "mode" },
     { text: "Mark", value: "mark" }
   ],
-  option: [10, 25, { text: "$vuetify.dataIterator.rowsPerPageAll", value: -1 }]
+  option: [14, 25, { text: "$vuetify.dataIterator.rowsPerPageAll", value: -1 }]
 };

@@ -21,6 +21,7 @@ export default new Vuex.Store({
     playlists: [],
     tracks: [],
     studio: [],
+    selected: [],
     indo: null,
     dark: true,
     loading: false,
@@ -61,6 +62,9 @@ export default new Vuex.Store({
     },
     storeToStudio(state, payload) {
       return state.studio.push(payload);
+    },
+    setSelected(state, payload) {
+      return (state.selected = payload);
     }
   },
   actions: {

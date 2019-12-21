@@ -304,6 +304,15 @@ export default {
 </script>
 
 <style>
+.v-dialog--fullscreen::-webkit-scrollbar-thumb {
+  background: #666;
+}
+.v-dialog--fullscreen::-webkit-scrollbar-track {
+  background: #ddd;
+}
+.v-dialog--fullscreen::-webkit-scrollbar {
+  width: 10px;
+}
 .custom-loader {
   animation: loader 1s infinite;
   display: flex;

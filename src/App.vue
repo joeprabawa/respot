@@ -40,4 +40,14 @@ export default {
 main.v-content {
   padding: 0px !important;
 }
+
+html::-webkit-scrollbar {
+  width: 10px;
+}
+html::-webkit-scrollbar-thumb {
+  background: #666;
+}
+html::-webkit-scrollbar-track {
+  background: #ddd;
+}
 </style>

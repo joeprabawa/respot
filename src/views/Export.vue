@@ -1,7 +1,7 @@
 <template>
   <v-layout row align-center justify-center>
     <v-flex xs12>
-      <v-expansion-panel class="elevation-0">
+      <v-expansion-panel expand class="elevation-0">
         <v-expansion-panel-content v-for="(item, i) in items" :key="i">
           <template v-slot:header>
             <div class="display-1">
@@ -38,11 +38,28 @@ export default {
 
   methods: {
     sorting(params, n) {
-      return params
-        .map(a => [Math.random(), a])
-        .sort((a, b) => a[0] - b[0])
-        .map(a => a[1])
-        .slice(0, n);
+      // return params
+      //   .map(a => [Math.random(), a])
+      //   .sort((a, b) => a[0] - b[0])
+      //   .map(a => a[1])
+      //   .slice(0, n);
+
+      var m = params.length,
+        t,
+        i;
+
+      // While there remain elements to shuffle…
+      while (m) {
+        // Pick a remaining element…
+        i = Math.floor(Math.random() * m--);
+
+        // And swap it with the current element.
+        t = params[m];
+        params[m] = params[i];
+        params[i] = t;
+      }
+
+      return params.slice(0, n);
     },
 
     chunck(func) {

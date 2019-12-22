@@ -1,14 +1,5 @@
 <template>
-  <v-layout v-if="value > 0" row wrap align-center justify-center fill-height>
-    <v-progress-circular
-      :rotate="100"
-      :size="300"
-      :width="25"
-      :value="value"
-      color="teal"
-    >{{ value }}</v-progress-circular>
-  </v-layout>
-  <v-flex xs12 v-else>
+  <v-flex xs12>
     <v-fab-transition>
       <v-btn
         @click="remove"
@@ -47,7 +38,7 @@
                 <v-list-group prepend-icon="account_circle" value="true">
                   <template v-slot:activator>
                     <v-list-tile>
-                      <v-list-tile-title>Users</v-list-tile-title>
+                      <v-list-tile-title>Category</v-list-tile-title>
                     </v-list-tile>
                   </template>
                   <v-list-group
@@ -155,8 +146,7 @@ export default {
       tracks: [],
       singleSelect: false,
       items: [],
-      value: 0,
-      finish: 100
+      value: 0
     };
   },
 
@@ -213,14 +203,13 @@ export default {
       return (this.items = [...obj]);
     },
     remove() {
-      const deleted = this.$store.state.selected.map(v => {
+      this.$store.state.selected.map(v => {
         db.remove({ "track.id": v.track.id }, { multi: true }).then(doc => {
-          this.finish = this.finish - doc;
-          this.value += this.finish;
+          this.snackbar = true;
+          this.text = `${(this.value += doc)} songs deleted`;
         });
         return v;
       });
-      this.text = `${deleted.length} songs deleted`;
 
       db.find({}).then(docs => {
         this.tracks = docs;
@@ -232,7 +221,7 @@ export default {
 
 <style>
 .v-navigation-drawer::-webkit-scrollbar {
-  width: 10px;
+  width: 5px;
 }
 .v-navigation-drawer::-webkit-scrollbar-thumb {
   background: #666;

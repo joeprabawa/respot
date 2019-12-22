@@ -4,6 +4,12 @@ import axios from "axios";
 import { CLIENT_ID } from "./key";
 import { setupCache } from "axios-cache-adapter";
 
+// top: 13;
+// cur: 25;
+// rec: 31;
+// old: 24;
+// ind: 24;
+
 const cache = setupCache({
   maxAge: 15 * 60 * 1000
 });
@@ -80,24 +86,17 @@ export default new Vuex.Store({
           return initial;
         }, {});
       window.location.hash = "";
-
-      // Set token
       let _token = hash.access_token;
-
       const authEndpoint = "https://accounts.spotify.com/authorize";
-
       // Replace with your app's client ID, redirect URI and desired scopes
-
       const redirectUri = "http://localhost:8080";
       const scopes = ["user-top-read"];
 
       // If there is no token, redirect to Spotify authorization
-      if (!_token) {
+      if (!_token)
         window.location = `${authEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scopes.join(
           "%20"
         )}&response_type=token&show_dialog=true`;
-      }
-
       return commit("getToken", _token);
     },
 
@@ -193,7 +192,7 @@ export default new Vuex.Store({
           category = "Top 40";
         } else if (substract === 1) {
           category = "Current";
-        } else if (substract >= 2 && substract < 10) {
+        } else if (substract >= 2 && substract < 18) {
           category = "Recurrent";
         } else {
           category = "Oldies";

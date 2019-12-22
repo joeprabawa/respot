@@ -149,7 +149,6 @@ export default {
     vals: [],
     disable: null,
     argument: "",
-    singleSelect: false,
     dropdowns: [
       {
         value: "save",
@@ -233,6 +232,7 @@ export default {
     close() {
       this.dialog = false;
       this.item.show = false;
+      this.$store.commit("setSelected", []);
     },
 
     selectOption(args, tags) {

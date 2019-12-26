@@ -203,14 +203,16 @@ export default {
       return (this.items = [...obj]);
     },
     remove() {
-      this.$store.state.selected.map(v => {
-        db.remove({ "track.id": v.track.id }, { multi: true }).then(doc => {
-          this.snackbar = true;
-          this.text = `${(this.value += doc)} songs deleted`;
-        });
+      this.$store.state.selected.map(async v => {
+        const del = await db.remove(
+          { "track.id": v.track.id },
+          { multi: true }
+        );
+        this.snackbar = true;
+        this.text = `${(this.value += del)} songs deleted`;
         return v;
       });
-
+      // Realtime listener
       db.find({}).then(docs => {
         this.tracks = docs;
       });

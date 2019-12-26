@@ -1,23 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import axios from "axios";
+
+import { api } from "./utils/helpers";
 import { CLIENT_ID } from "./key";
-import { setupCache } from "axios-cache-adapter";
-
-// top: 13;
-// cur: 25;
-// rec: 31;
-// old: 24;
-// ind: 24;
-
-const cache = setupCache({
-  maxAge: 15 * 60 * 1000
-});
-
-// Create `axios` instance passing the newly created `cache.adapter`
-const api = axios.create({
-  adapter: cache.adapter
-});
 
 Vue.use(Vuex);
 
@@ -108,9 +93,9 @@ export default new Vuex.Store({
           Authorization: `Bearer ${state.token}`
         }
       };
-      const fetchPlaylist = await fetch(url, options);
-      const response = await fetchPlaylist.json();
-      const { items, next } = await response;
+      const fetchPlaylist = await api({ url, method: "get", ...options });
+      const { data } = await fetchPlaylist;
+      const { items, next } = await data;
       const edit = items.map(item => {
         return { ...item, show: false };
       });

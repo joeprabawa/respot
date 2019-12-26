@@ -38,12 +38,6 @@ export default {
 
   methods: {
     sorting(params, n) {
-      // return params
-      //   .map(a => [Math.random(), a])
-      //   .sort((a, b) => a[0] - b[0])
-      //   .map(a => a[1])
-      //   .slice(0, n);
-
       var m = params.length,
         t,
         i;
@@ -58,7 +52,6 @@ export default {
         params[m] = params[i];
         params[i] = t;
       }
-
       return params.slice(0, n);
     },
 

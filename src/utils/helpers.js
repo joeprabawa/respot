@@ -1,5 +1,10 @@
 import db from "@/nedb";
-export const reducing = data => {
+import axios from "axios";
+import { setupCache } from "axios-cache-adapter";
+const cache = setupCache({
+  maxAge: 15 * 60 * 1000
+});
+const reducing = data => {
   return data.reduce((acc, v) => {
     const key = v.category.toLowerCase().replace(/\s/g, "");
     if (!acc[key]) acc[key] = [];
@@ -32,3 +37,7 @@ export const datatable = {
   ],
   option: [14, 25, { text: "$vuetify.dataIterator.rowsPerPageAll", value: -1 }]
 };
+
+export const api = axios.create({
+  adapter: cache.adapter
+});

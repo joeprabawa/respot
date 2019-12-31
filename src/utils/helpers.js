@@ -41,3 +41,9 @@ export const datatable = {
 export const api = axios.create({
   adapter: cache.adapter
 });
+
+// return params
+//   .map(a => [Math.random(), a])
+//   .sort((a, b) => a[0] - b[0])
+//   .map(a => a[1])
+//   .slice(0, n);

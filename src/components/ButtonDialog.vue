@@ -188,7 +188,15 @@ export default {
 
   computed: {
     ...mapGetters(["tracks", "trackLoading"]),
-    ...mapState(["dark", "selected"])
+    ...mapState(["dark", "selected"]),
+    selected: {
+      get() {
+        return this.$store.state.selected;
+      },
+      set(value) {
+        this.$store.commit("setSelected", value);
+      }
+    }
   },
 
   methods: {
@@ -242,14 +250,19 @@ export default {
         this.selected.forEach(val => {
           db.find({}).then(async docs => {
             const exist = docs.filter(v => {
-              const same = this.selected.find(
-                val => val.track.id === v.track.id
+              const same = this.selected.find(val =>
+                // val.track.id === v.track.id &&
+                v.track.artists[0].id === val.track.artists[0].id
+                  ? val
+                  : v.track.id === val.track.id
+                  ? v
+                  : null
               );
               return same;
             });
-
+           
             let documents = await db.find({});
-            this.datas = await documents;
+            this.datas = documents;
 
             const res = this.selected.filter(val => {
               return !this.datas.find(v => v.track.id === val.track.id);
@@ -304,13 +317,16 @@ export default {
 </script>
 
 <style>
-.v-dialog--fullscreen::-webkit-scrollbar-thumb {
+.v-dialog--fullscreen::-webkit-scrollbar-thumb,
+.v-card__text::-webkit-scrollbar-thumb {
   background: #666;
 }
-.v-dialog--fullscreen::-webkit-scrollbar-track {
+.v-dialog--fullscreen::-webkit-scrollbar-track,
+.v-card__text::-webkit-scrollbar-track {
   background: #ddd;
 }
-.v-dialog--fullscreen::-webkit-scrollbar {
+.v-dialog--fullscreen::-webkit-scrollbar,
+.v-card__text::-webkit-scrollbar {
   width: 10px;
 }
 .custom-loader {

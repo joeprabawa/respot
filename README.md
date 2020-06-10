@@ -6,6 +6,11 @@
  - Because of the large amount of songs to be written manually, why don't we **build an app** that could create a playlist automatically. Since Spotify as a music streaming service, also provide a large scale API to interact with, i proposed to build an app that interact with the Spotify API.
 - With this app, music director can make curated playlist on their spotify's account and this app will pulled their playlist and grab all of the meta/information about all the tracks.  
 
+> Screenshot
+
+![Landing Page](https://drive.google.com/file/d/1xeFM-oVHwe0bweeDC2h3xkN_ITEEjpTP/view?usp=sharing)
+
+
 ## Project setup
 
 ```

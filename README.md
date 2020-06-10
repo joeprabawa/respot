@@ -8,7 +8,14 @@
 
 > Screenshot
 
+### Landing Page
 ![Landing Page](https://res.cloudinary.com/dxffktnxz/image/upload/v1591768492/Screen_Shot_2020-06-10_at_13.32.22_k3qpcd.png)
+
+### Mobile View
+![Landing Page](https://res.cloudinary.com/dxffktnxz/image/upload/v1591768491/Screen_Shot_2020-06-10_at_13.33.20_juompx.png)
+
+### PWA Support
+![Landing Page](https://res.cloudinary.com/dxffktnxz/image/upload/v1591768492/Screen_Shot_2020-06-10_at_13.34.07_jttk70.png)
 
 
 ## Project setup

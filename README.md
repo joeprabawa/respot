@@ -1,6 +1,7 @@
 # Respot
 
-Summary : Motivation behind building this is app is to helped Hard Rock FM Bali Music Director to organize and creating playlists that want to be played on Hard Rock FM's Bali Studio. Previously, all this time the music director work on the playlist still using Ms.Excel
+Summary 
+ - Motivation behind building this is app is to helped Hard Rock FM Bali Music Director to organize and creating playlists that want to be played on Hard Rock FM's Bali Studio. Previously, all this time the music director work on the playlist still using Ms.Excel
 
 ## Project setup
 

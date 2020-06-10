@@ -14,6 +14,9 @@
 ### PWA Support
 ![Landing Page](https://res.cloudinary.com/dxffktnxz/image/upload/v1591768492/Screen_Shot_2020-06-10_at_13.34.07_jttk70.png)
 
+### Demo
+![Demo](https://res.cloudinary.com/dxffktnxz/video/upload/v1591768901/Screen_Recording_2020-06-10_at_13.37.30_jlpb6n.mov)
+
 
 ## Project setup
 

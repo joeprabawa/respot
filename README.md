@@ -8,7 +8,7 @@
 
 > Screenshot
 
-![Landing Page](https://drive.google.com/file/d/1xeFM-oVHwe0bweeDC2h3xkN_ITEEjpTP/view?usp=sharing)
+![Landing Page](https://res.cloudinary.com/dxffktnxz/image/upload/v1591768492/Screen_Shot_2020-06-10_at_13.32.22_k3qpcd.png)
 
 
 ## Project setup
